@@ -217,13 +217,13 @@ void ActronAirKeypad::loop() {
   if (zone_4_)
     zone_4_->publish_state(get_pulse(LedIndex::ZONE_4));
   if (zone_5_)
-    zone_5_->publish_state(get_pulse(LedIndex::ZONE_5));
+    zone_5_->publish_state(!get_pulse(LedIndex::ZONE_5));
   if (zone_6_)
-    zone_6_->publish_state(get_pulse(LedIndex::ZONE_6));
+    zone_6_->publish_state(!get_pulse(LedIndex::ZONE_6));
   if (zone_7_)
-    zone_7_->publish_state(get_pulse(LedIndex::ZONE_7));
+    zone_7_->publish_state(!get_pulse(LedIndex::ZONE_7));
   if (zone_8_)
-    zone_8_->publish_state(get_pulse(LedIndex::ZONE_8));
+    zone_8_->publish_state(!get_pulse(LedIndex::ZONE_8));
 }
 
 void ActronAirKeypad::dump_config() {
