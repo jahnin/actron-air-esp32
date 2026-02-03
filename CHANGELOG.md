@@ -1,3 +1,10 @@
+## [0.3.2](https://github.com/johnf/actron-air-esphome/compare/v0.3.1...v0.3.2) (2026-02-03)
+
+### Bug Fixes
+
+* invert zone 5-8 logic ([9c13683](https://github.com/johnf/actron-air-esphome/commit/9c13683c1bd258d085152e3a5e7f85b5572ecdd4))
+* use bool type for the pulses ([869cc68](https://github.com/johnf/actron-air-esphome/commit/869cc68eb969aa2335764c196dcaeaad85235f20))
+
 ## [0.3.1](https://github.com/johnf/actron-air-esphome/compare/v0.3.0...v0.3.1) (2026-01-05)
 
 ### Bug Fixes
