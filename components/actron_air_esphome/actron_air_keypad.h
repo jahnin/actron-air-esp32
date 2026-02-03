@@ -127,7 +127,7 @@ private:
   float get_display_value() const;
   static char decode_digit(uint8_t segment_bits);
 
-  char get_pulse(LedIndex idx) const {
+  bool get_pulse(LedIndex idx) const {
     return pulses_[static_cast<std::size_t>(idx)];
   }
 
@@ -158,13 +158,13 @@ private:
   binary_sensor::BinarySensor *zone_8_{nullptr};
 
   // Protocol state
-  std::array<char, NPULSE> pulses_{};
+  std::array<bool, NPULSE> pulses_{};
   bool has_new_data_{false};
 
   // ISR state (volatile)
   volatile unsigned long last_intr_us_{0};
   volatile unsigned long last_work_us_{0};
-  volatile char pulse_vec_[NPULSE]{};
+  volatile bool pulse_vec_[NPULSE]{};
   volatile uint8_t num_low_pulses_{0};
   volatile uint32_t error_count_{0};
   volatile bool do_work_{false};

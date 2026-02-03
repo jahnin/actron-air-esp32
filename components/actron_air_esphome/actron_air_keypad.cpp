@@ -1,5 +1,7 @@
 #include "actron_air_keypad.h"
 
+static_assert(sizeof(bool) == 1, "bool must be 1 byte for memcpy");
+
 namespace esphome {
 namespace actron_air_esphome {
 
@@ -148,7 +150,7 @@ void ActronAirKeypad::loop() {
   if (delta_us > FRAME_TIMEOUT_US && num_low_pulses_) {
     if (num_low_pulses_ == NPULSE && !has_data_error_) {
       InterruptLock lock;
-      const char *vec = const_cast<const char *>(pulse_vec_);
+      const bool *vec = const_cast<const bool *>(pulse_vec_);
       if (std::memcmp(pulses_.data(), vec, NPULSE) != 0) {
         has_new_data_ = true;
         std::memcpy(pulses_.data(), vec, NPULSE);
