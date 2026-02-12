@@ -1,3 +1,9 @@
+## [0.3.3](https://github.com/johnf/actron-air-esphome/compare/v0.3.2...v0.3.3) (2026-02-12)
+
+### Bug Fixes
+
+* render 8 zones correctly ([834b5a0](https://github.com/johnf/actron-air-esphome/commit/834b5a081bc88397294945585ffaaf1458aff4f3))
+
 ## [0.3.2](https://github.com/johnf/actron-air-esphome/compare/v0.3.1...v0.3.2) (2026-02-03)
 
 ### Bug Fixes
