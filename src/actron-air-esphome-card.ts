@@ -221,7 +221,7 @@ export class ActronAirEsphomeCard extends LitElement {
     `;
   }
 
-  private _renderZones(state: CardState): TemplateResult[] {
+  private _renderZones(state: CardState): TemplateResult {
     const zoneCount = Math.min(
       this._config.zone_count || DEFAULT_ZONE_COUNT,
       MAX_ZONE_COUNT,
@@ -234,19 +234,19 @@ export class ActronAirEsphomeCard extends LitElement {
       const zoneName = this._config.zones?.[i]?.name || DEFAULT_ZONE_NAMES[i];
 
       zones.push(html`
-        <div class="zone zone_${zoneNum}">
-          <button
-            class="zone-btn ${isActive ? 'active' : ''}"
-            @click=${() => this._handleZoneToggle(zoneNum)}
-          >
-            <span class="zone-num">${zoneNum}</span>
-            <span class="zone-name">${zoneName}</span>
-          </button>
-        </div>
+        <button
+          class="zone-btn ${isActive ? 'active' : ''}"
+          @click=${() => this._handleZoneToggle(zoneNum)}
+        >
+          <span class="zone-num">${zoneNum}</span>
+          <span class="zone-name">${zoneName}</span>
+        </button>
       `);
     }
 
-    return zones;
+    const containerClass = zoneCount > 4 ? 'zones zones-many' : 'zones';
+
+    return html`<div class="${containerClass}">${zones}</div>`;
   }
 
   protected render(): TemplateResult {
@@ -346,7 +346,7 @@ export class ActronAirEsphomeCard extends LitElement {
               : ''
           }
 
-          ${showZones ? this._renderZones(state) : ''}
+          ${showZones ? this._renderZones(state) : html``}
         </div>
       </ha-card>
     `;

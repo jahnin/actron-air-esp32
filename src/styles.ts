@@ -36,9 +36,20 @@ export const cardStyles = css`
       '. . . . . . . .'
       'temp-up temp-up set-temp set-temp timer timer timer-up timer-up'
       'temp-down temp-down set-temp set-temp . . timer-down timer-down'
-      '. . . . . . . .'
-      'zone_1 zone_1 zone_1 zone_1 zone_2 zone_2 zone_2 zone_2'
-      'zone_3 zone_3 zone_3 zone_3 zone_4 zone_4 zone_4 zone_4';
+      'zones zones zones zones zones zones zones zones';
+  }
+
+  /* Zones Container */
+  .zones {
+    grid-area: zones;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 6px;
+    margin-top: 6px;
+  }
+
+  .zones.zones-many {
+    grid-template-columns: repeat(4, 1fr);
   }
 
   /* LCD Display */
@@ -270,26 +281,6 @@ export const cardStyles = css`
   }
 
   /* Zone Buttons */
-  .zone {
-    display: flex;
-  }
-
-  .zone_1 {
-    grid-area: zone_1;
-  }
-
-  .zone_2 {
-    grid-area: zone_2;
-  }
-
-  .zone_3 {
-    grid-area: zone_3;
-  }
-
-  .zone_4 {
-    grid-area: zone_4;
-  }
-
   .zone-btn {
     background: var(--actron-button-bg);
     border: 1px solid var(--actron-button-border);
