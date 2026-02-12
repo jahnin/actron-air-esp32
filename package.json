@@ -22,6 +22,7 @@
   "scripts": {
     "copy-card": "mkdir -p custom_components/actron_air_esphome/frontend/; mv dist/actron-air-esphome-card.js custom_components/actron_air_esphome/frontend/; rmdir dist",
     "build": "pnpm run lint && rollup -c && pnpm run copy-card",
+    "watch": "pnpm run build; while inotifywait -r -e modify,create,delete src/; do pnpm run build; done",
     "lint": "biome check src",
     "lint:fix": "biome check --write src",
     "release": "gh workflow run release.yml"

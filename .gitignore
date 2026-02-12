@@ -2,3 +2,15 @@ cdeps
 node_modules
 dist
 custom_components/actron_air_esphome/frontend/actron-air-esphome-card.js
+
+# Home Assistant dev config (runtime files)
+ha-config/.storage/
+ha-config/home-assistant_v2.db
+ha-config/home-assistant_v2.db-shm
+ha-config/home-assistant_v2.db-wal
+ha-config/home-assistant.log*
+ha-config/.HA_VERSION
+ha-config/tts/
+ha-config/blueprints/
+ha-config/deps/
+ha-config/.ha_run.lock
