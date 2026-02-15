@@ -1,3 +1,9 @@
+## [0.3.4](https://github.com/johnf/actron-air-esphome/compare/v0.3.3...v0.3.4) (2026-02-15)
+
+### Bug Fixes
+
+* **ci:** use venv instead of --system for ESPHome install ([1300dd4](https://github.com/johnf/actron-air-esphome/commit/1300dd4ebeee12be3cb759de359447668c144d9a))
+
 ## [0.3.3](https://github.com/johnf/actron-air-esphome/compare/v0.3.2...v0.3.3) (2026-02-12)
 
 ### Bug Fixes
