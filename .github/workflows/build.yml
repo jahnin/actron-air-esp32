@@ -41,8 +41,10 @@ jobs:
       - name: Set up Python
         run: uv python install 3.13
 
-      - name: Install ESPHome
-        run: uv pip install --system esphome
+      - name: Create venv and install ESPHome
+        run: |
+          uv venv
+          uv pip install esphome
 
       - name: Compile ESPHome component
-        run: esphome compile test_compile.yaml
+        run: .venv/bin/esphome compile test_compile.yaml
