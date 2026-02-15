@@ -5,6 +5,35 @@ namespace actron_air_esphome {
 
 static const char *const TAG = "actron_air_esphome";
 
+// Mapping from BinarySensorId to LedIndex with inversion flag
+struct BinarySensorMapping {
+  LedIndex led_index;
+  bool invert;
+};
+
+// Static mapping table - order must match BinarySensorId enum
+static constexpr std::array<BinarySensorMapping, BINARY_SENSOR_COUNT>
+    BINARY_SENSOR_MAPPINGS = {{
+        {LedIndex::FAN_CONT, false},
+        {LedIndex::FAN_HIGH, false},
+        {LedIndex::FAN_MID, false},
+        {LedIndex::FAN_LOW, false},
+        {LedIndex::COOL, false},
+        {LedIndex::AUTO_MODE, false},
+        {LedIndex::HEAT, false},
+        {LedIndex::RUN, false},
+        {LedIndex::TIMER, false},
+        {LedIndex::INSIDE, false},
+        {LedIndex::ZONE_1, false},
+        {LedIndex::ZONE_2, false},
+        {LedIndex::ZONE_3, false},
+        {LedIndex::ZONE_4, false},
+        {LedIndex::ZONE_5, true},  // Zones 5-8 have inverted logic
+        {LedIndex::ZONE_6, true},
+        {LedIndex::ZONE_7, true},
+        {LedIndex::ZONE_8, true},
+    }};
+
 // Decode 7-segment pattern (GFEDCBA) to character
 //    AAA
 //   F   B
@@ -200,42 +229,13 @@ void ActronAirKeypad::loop() {
         error_count_.load(std::memory_order_relaxed));
   }
 
-  if (fan_cont_)
-    fan_cont_->publish_state(get_pulse(LedIndex::FAN_CONT));
-  if (fan_high_)
-    fan_high_->publish_state(get_pulse(LedIndex::FAN_HIGH));
-  if (fan_mid_)
-    fan_mid_->publish_state(get_pulse(LedIndex::FAN_MID));
-  if (fan_low_)
-    fan_low_->publish_state(get_pulse(LedIndex::FAN_LOW));
-  if (cool_)
-    cool_->publish_state(get_pulse(LedIndex::COOL));
-  if (auto_mode_)
-    auto_mode_->publish_state(get_pulse(LedIndex::AUTO_MODE));
-  if (heat_)
-    heat_->publish_state(get_pulse(LedIndex::HEAT));
-  if (run_)
-    run_->publish_state(get_pulse(LedIndex::RUN));
-  if (timer_)
-    timer_->publish_state(get_pulse(LedIndex::TIMER));
-  if (inside_)
-    inside_->publish_state(get_pulse(LedIndex::INSIDE));
-  if (zone_1_)
-    zone_1_->publish_state(get_pulse(LedIndex::ZONE_1));
-  if (zone_2_)
-    zone_2_->publish_state(get_pulse(LedIndex::ZONE_2));
-  if (zone_3_)
-    zone_3_->publish_state(get_pulse(LedIndex::ZONE_3));
-  if (zone_4_)
-    zone_4_->publish_state(get_pulse(LedIndex::ZONE_4));
-  if (zone_5_)
-    zone_5_->publish_state(!get_pulse(LedIndex::ZONE_5));
-  if (zone_6_)
-    zone_6_->publish_state(!get_pulse(LedIndex::ZONE_6));
-  if (zone_7_)
-    zone_7_->publish_state(!get_pulse(LedIndex::ZONE_7));
-  if (zone_8_)
-    zone_8_->publish_state(!get_pulse(LedIndex::ZONE_8));
+  for (std::size_t i = 0; i < BINARY_SENSOR_COUNT; ++i) {
+    if (binary_sensors_[i]) {
+      const auto &mapping = BINARY_SENSOR_MAPPINGS[i];
+      bool state = get_pulse(mapping.led_index);
+      binary_sensors_[i]->publish_state(mapping.invert ? !state : state);
+    }
+  }
 }
 
 void ActronAirKeypad::dump_config() {

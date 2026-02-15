@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <cstddef>
 #include <cstdint>
@@ -84,6 +85,33 @@ enum class LedIndex : std::size_t {
   DP = 28,
 };
 
+// Binary sensor identifiers for array indexing
+enum class BinarySensorId : uint8_t {
+  FAN_CONT,
+  FAN_HIGH,
+  FAN_MID,
+  FAN_LOW,
+  COOL,
+  AUTO_MODE,
+  HEAT,
+  RUN,
+  TIMER,
+  INSIDE,
+  ZONE_1,
+  ZONE_2,
+  ZONE_3,
+  ZONE_4,
+  ZONE_5,
+  ZONE_6,
+  ZONE_7,
+  ZONE_8,
+  COUNT  // Must be last - used for array sizing
+};
+
+// Number of binary sensors
+constexpr std::size_t BINARY_SENSOR_COUNT =
+    static_cast<std::size_t>(BinarySensorId::COUNT);
+
 /// ESPHome component that decodes Actron Air keypad display data.
 ///
 /// Captures a pulse train from the keypad's display wire and decodes it to
@@ -102,24 +130,9 @@ public:
   void set_error_count_sensor(sensor::Sensor *s) { error_count_sensor_ = s; }
   void set_bit_string_sensor(text_sensor::TextSensor *s) { bit_string_ = s; }
 
-  void set_fan_cont_sensor(binary_sensor::BinarySensor *s) { fan_cont_ = s; }
-  void set_fan_high_sensor(binary_sensor::BinarySensor *s) { fan_high_ = s; }
-  void set_fan_mid_sensor(binary_sensor::BinarySensor *s) { fan_mid_ = s; }
-  void set_fan_low_sensor(binary_sensor::BinarySensor *s) { fan_low_ = s; }
-  void set_cool_sensor(binary_sensor::BinarySensor *s) { cool_ = s; }
-  void set_auto_mode_sensor(binary_sensor::BinarySensor *s) { auto_mode_ = s; }
-  void set_heat_sensor(binary_sensor::BinarySensor *s) { heat_ = s; }
-  void set_run_sensor(binary_sensor::BinarySensor *s) { run_ = s; }
-  void set_timer_sensor(binary_sensor::BinarySensor *s) { timer_ = s; }
-  void set_inside_sensor(binary_sensor::BinarySensor *s) { inside_ = s; }
-  void set_zone_1_sensor(binary_sensor::BinarySensor *s) { zone_1_ = s; }
-  void set_zone_2_sensor(binary_sensor::BinarySensor *s) { zone_2_ = s; }
-  void set_zone_3_sensor(binary_sensor::BinarySensor *s) { zone_3_ = s; }
-  void set_zone_4_sensor(binary_sensor::BinarySensor *s) { zone_4_ = s; }
-  void set_zone_5_sensor(binary_sensor::BinarySensor *s) { zone_5_ = s; }
-  void set_zone_6_sensor(binary_sensor::BinarySensor *s) { zone_6_ = s; }
-  void set_zone_7_sensor(binary_sensor::BinarySensor *s) { zone_7_ = s; }
-  void set_zone_8_sensor(binary_sensor::BinarySensor *s) { zone_8_ = s; }
+  void set_binary_sensor(BinarySensorId id, binary_sensor::BinarySensor *s) {
+    binary_sensors_[static_cast<std::size_t>(id)] = s;
+  }
 
 private:
   static void IRAM_ATTR handle_interrupt(ActronAirKeypad *arg);
@@ -138,24 +151,8 @@ private:
   sensor::Sensor *error_count_sensor_{nullptr};
   text_sensor::TextSensor *bit_string_{nullptr};
 
-  binary_sensor::BinarySensor *fan_cont_{nullptr};
-  binary_sensor::BinarySensor *fan_high_{nullptr};
-  binary_sensor::BinarySensor *fan_mid_{nullptr};
-  binary_sensor::BinarySensor *fan_low_{nullptr};
-  binary_sensor::BinarySensor *cool_{nullptr};
-  binary_sensor::BinarySensor *auto_mode_{nullptr};
-  binary_sensor::BinarySensor *heat_{nullptr};
-  binary_sensor::BinarySensor *run_{nullptr};
-  binary_sensor::BinarySensor *timer_{nullptr};
-  binary_sensor::BinarySensor *inside_{nullptr};
-  binary_sensor::BinarySensor *zone_1_{nullptr};
-  binary_sensor::BinarySensor *zone_2_{nullptr};
-  binary_sensor::BinarySensor *zone_3_{nullptr};
-  binary_sensor::BinarySensor *zone_4_{nullptr};
-  binary_sensor::BinarySensor *zone_5_{nullptr};
-  binary_sensor::BinarySensor *zone_6_{nullptr};
-  binary_sensor::BinarySensor *zone_7_{nullptr};
-  binary_sensor::BinarySensor *zone_8_{nullptr};
+  std::array<binary_sensor::BinarySensor *, BINARY_SENSOR_COUNT>
+      binary_sensors_{};
 
   // Protocol state (main loop only)
   uint64_t pulses_{0};  // Snapshot for sensor publishing
