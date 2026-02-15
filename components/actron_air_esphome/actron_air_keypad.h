@@ -1,8 +1,8 @@
 #pragma once
 
-// #include <array>
+#include <atomic>
 #include <cstddef>
-// #include <cstdint>
+#include <cstdint>
 
 #include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/components/sensor/sensor.h"
@@ -128,7 +128,7 @@ private:
   static char decode_digit(uint8_t segment_bits);
 
   bool get_pulse(LedIndex idx) const {
-    return pulses_[static_cast<std::size_t>(idx)];
+    return (pulses_ >> static_cast<std::size_t>(idx)) & 1;
   }
 
   GPIOPin *pin_{nullptr};
@@ -157,18 +157,23 @@ private:
   binary_sensor::BinarySensor *zone_7_{nullptr};
   binary_sensor::BinarySensor *zone_8_{nullptr};
 
-  // Protocol state
-  std::array<bool, NPULSE> pulses_{};
+  // Protocol state (main loop only)
+  uint64_t pulses_{0};  // Snapshot for sensor publishing
   bool has_new_data_{false};
 
-  // ISR state (volatile)
+  // ISR-only state (not shared)
   volatile unsigned long last_intr_us_{0};
-  volatile unsigned long last_work_us_{0};
-  volatile bool pulse_vec_[NPULSE]{};
-  volatile uint8_t num_low_pulses_{0};
-  volatile uint32_t error_count_{0};
-  volatile bool do_work_{false};
-  volatile bool has_data_error_{false};
+  uint64_t local_pulse_bits_{0};  // Staging buffer - only ISR writes
+
+  // Loop-only state (not shared)
+  unsigned long last_work_us_{0};
+
+  // Atomic shared state (ISR writes, loop reads)
+  std::atomic<uint64_t> pulse_bits_{0};     // Bitmap: bit N = pulse N value
+  std::atomic<uint8_t> num_low_pulses_{0};
+  std::atomic<uint32_t> error_count_{0};
+  std::atomic<bool> do_work_{false};
+  std::atomic<bool> has_data_error_{false};
 };
 
 } // namespace actron_air_esphome

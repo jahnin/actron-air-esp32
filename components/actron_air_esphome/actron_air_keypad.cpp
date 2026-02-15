@@ -1,7 +1,5 @@
 #include "actron_air_keypad.h"
 
-static_assert(sizeof(bool) == 1, "bool must be 1 byte for memcpy");
-
 namespace esphome {
 namespace actron_air_esphome {
 
@@ -96,28 +94,39 @@ void IRAM_ATTR ActronAirKeypad::handle_interrupt(ActronAirKeypad *arg) {
   arg->last_intr_us_ = now_us;
 
   if (delta_us > FRAME_BOUNDARY_US) {
-    arg->has_data_error_ = false;
+    arg->has_data_error_.store(false, std::memory_order_relaxed);
 
     return;
   }
 
   if (delta_us >= START_CONDITION_US) {
-    arg->num_low_pulses_ = 0;
+    // Reset staging buffer for new frame
+    arg->local_pulse_bits_ = 0;
+    arg->num_low_pulses_.store(0, std::memory_order_relaxed);
 
     return;
   }
 
-  if (arg->num_low_pulses_ >= NPULSE) {
-    arg->has_data_error_ = true;
-    uint32_t count = arg->error_count_;
-    if (count < UINT32_MAX) {
-      arg->error_count_ = count + 1;
-    }
+  uint8_t idx = arg->num_low_pulses_.load(std::memory_order_relaxed);
+  if (idx >= NPULSE) {
+    arg->has_data_error_.store(true, std::memory_order_relaxed);
+    arg->error_count_.fetch_add(1, std::memory_order_relaxed);
+
+    return;
   }
 
-  arg->pulse_vec_[arg->num_low_pulses_] = delta_us < PULSE_THRESHOLD_US;
-  arg->num_low_pulses_ = static_cast<uint8_t>(arg->num_low_pulses_ + 1);
-  arg->do_work_ = true;
+  // Set bit in staging buffer if pulse is short (logic 1)
+  if (delta_us < PULSE_THRESHOLD_US) {
+    arg->local_pulse_bits_ |= (1ULL << idx);
+  }
+  arg->num_low_pulses_.store(idx + 1, std::memory_order_relaxed);
+
+  // Publish complete frame atomically when we have all bits
+  if (idx + 1 == NPULSE) {
+    arg->pulse_bits_.store(arg->local_pulse_bits_, std::memory_order_release);
+  }
+
+  arg->do_work_.store(true, std::memory_order_release);
 }
 
 void ActronAirKeypad::setup() {
@@ -139,28 +148,30 @@ void ActronAirKeypad::setup() {
 void ActronAirKeypad::loop() {
   unsigned long now_us = micros();
 
-  if (do_work_) {
-    do_work_ = false;
+  if (do_work_.load(std::memory_order_acquire)) {
+    do_work_.store(false, std::memory_order_relaxed);
     last_work_us_ = now_us;
 
     return;
   }
 
   unsigned long delta_us = now_us - last_work_us_;
-  if (delta_us > FRAME_TIMEOUT_US && num_low_pulses_) {
-    if (num_low_pulses_ == NPULSE && !has_data_error_) {
-      InterruptLock lock;
-      const bool *vec = const_cast<const bool *>(pulse_vec_);
-      if (std::memcmp(pulses_.data(), vec, NPULSE) != 0) {
+  uint8_t num_pulses = num_low_pulses_.load(std::memory_order_acquire);
+  if (delta_us > FRAME_TIMEOUT_US && num_pulses) {
+    if (num_pulses == NPULSE &&
+        !has_data_error_.load(std::memory_order_acquire)) {
+      // No InterruptLock needed - single atomic load
+      uint64_t bits = pulse_bits_.load(std::memory_order_acquire);
+      if (bits != pulses_) {
+        pulses_ = bits;
         has_new_data_ = true;
-        std::memcpy(pulses_.data(), vec, NPULSE);
       }
     } else {
-      ESP_LOGVV(TAG, "Only %u bits received (or data error: %u)",
-                num_low_pulses_, has_data_error_ ? 1 : 0);
+      ESP_LOGVV(TAG, "Only %u bits received (or data error: %u)", num_pulses,
+                has_data_error_.load(std::memory_order_relaxed) ? 1 : 0);
     }
 
-    num_low_pulses_ = 0;
+    num_low_pulses_.store(0, std::memory_order_relaxed);
     last_work_us_ = now_us;
   }
 
@@ -175,7 +186,7 @@ void ActronAirKeypad::loop() {
     std::string text;
     text.reserve(NPULSE);
     for (std::size_t i = 0; i < NPULSE; ++i) {
-      text += (pulses_[i] ? '1' : '0');
+      text += ((pulses_ >> i) & 1) ? '1' : '0';
     }
     bit_string_->publish_state(text);
   }
@@ -185,7 +196,8 @@ void ActronAirKeypad::loop() {
   }
 
   if (error_count_sensor_) {
-    error_count_sensor_->publish_state(error_count_);
+    error_count_sensor_->publish_state(
+        error_count_.load(std::memory_order_relaxed));
   }
 
   if (fan_cont_)
