@@ -2,6 +2,7 @@ cdeps
 node_modules
 dist
 .venv
+.esphome
 custom_components/actron_air_esphome/frontend/actron-air-esphome-card.js
 
 # Home Assistant dev config (runtime files)

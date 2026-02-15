@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  build:
-    name: Test build
+  build-card:
+    name: Build Lovelace card
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,3 +28,21 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+  build-esphome:
+    name: Build ESPHome component
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      - name: Install ESPHome
+        run: uv pip install --system esphome
+
+      - name: Compile ESPHome component
+        run: esphome compile test_compile.yaml

@@ -98,8 +98,31 @@ GPIO Pin → ISR (handle_interrupt) → Main Loop → Publish to Sensors
 - Python 3.13+
 - ESPHome >= 2025.11.5
 - Home Assistant >= 2024.1.0 (for integration)
+- uv (for Python environment management)
+
+## Development Setup
+
+```bash
+# Set up Python environment and install ESPHome
+./setup-dev.sh
+
+# Activate the virtual environment
+source .venv/bin/activate
+```
 
 ## Build Commands
+
+### ESPHome Component
+
+```bash
+# Test that the ESPHome component compiles (uses local components)
+.venv/bin/esphome compile test_compile.yaml
+
+# Validate configuration without compiling
+.venv/bin/esphome config test_compile.yaml
+```
+
+### Lovelace Card
 
 - `pnpm run build` - Build Lovelace card and copy to integration
 - `pnpm run lint` - Run Biome linter
