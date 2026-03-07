@@ -1,3 +1,22 @@
+## [1.0.0](https://github.com/johnf/actron-air-esphome/compare/v0.4.0...v1.0.0) (2026-03-07)
+
+### ⚠ BREAKING CHANGES
+
+* Lovelace card configuration has changed. The card now
+requires a climate_entity instead of entity_prefix and zone_count.
+Zone naming and preset configuration has moved to the integration's
+config/options flow.
+
+- Add zone_names and custom_presets to integration config/options
+- Add config entry migration from v1 to v2
+- Simplify Lovelace card editor to a single climate entity picker
+- Card reads zone names and count from climate entity attributes
+- Add preset_menu with add/remove preset steps in config flow
+
+### Features
+
+* add custom zone names and multi-zone presets ([d10023c](https://github.com/johnf/actron-air-esphome/commit/d10023cef029d3dc02c6c4aa9a6105f198bb3d6f))
+
 ## [0.4.0](https://github.com/johnf/actron-air-esphome/compare/v0.3.5...v0.4.0) (2026-03-07)
 
 ### Features
