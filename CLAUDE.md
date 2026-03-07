@@ -40,11 +40,11 @@ custom_components/actron_air_esphome/
 
 ```
 src/
-├── actron-air-esphome-card.ts  # Main card component
-├── editor.ts                    # Config editor
-├── styles.ts                    # Retro LCD styling
-├── types.ts                     # TypeScript interfaces
-└── const.ts                     # Constants and mappings
+├── index.ts    # Main card component
+├── editor.ts   # Config editor
+├── styles.ts   # Retro LCD styling
+├── types.ts    # TypeScript interfaces
+└── const.ts    # Constants and mappings
 ```
 
 ### Data Flow
@@ -124,9 +124,32 @@ source .venv/bin/activate
 
 ### Lovelace Card
 
-- `pnpm run build` - Build Lovelace card and copy to integration
-- `pnpm run lint` - Run Biome linter
-- `pnpm run lint:fix` - Fix linting issues
+- `pnpm build` - Runs linting (Biome + TypeScript + Knip) then Vite build, copies output to integration
+- `pnpm lint:biome` - Run Biome linter/formatter
+- `pnpm lint:types` - TypeScript type checking (`tsc --noEmit`)
+- `pnpm lint:knip` - Check for unused exports/dependencies
+
+## Development Tooling
+
+- **Biome** (`biome.json`) - Linting and formatting for TypeScript
+- **Knip** (`knip.jsonc`) - Unused code/dependency detection
+- **Vite** - Build bundler (config inline via package.json, no separate config file)
+- **pnpm** - Package manager
+- **docker-compose.yml** - Local Home Assistant instance for testing
+
+## CI/CD & Release
+
+### Workflows
+
+- `.github/workflows/build.yml` - Builds card and compiles ESPHome component
+- `.github/workflows/release.yml` - Semantic release
+- `.github/workflows/validate.yml` - HACS and hassfest validation
+
+### Release Process
+
+- `release.config.mjs` - semantic-release configuration
+- `scripts/update-manifest-version.mjs` - Updates version in manifest.json, package.json, and src/const.ts
+- Commit convention: conventional commits (`feat:`, `fix:`, etc.)
 
 ## Maintenance
 
