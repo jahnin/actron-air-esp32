@@ -9,10 +9,11 @@ CONF_ENTITY_PREFIX: Final = "entity_prefix"
 CONF_ZONE_COUNT: Final = "zone_count"
 CONF_CURRENT_TEMP_SENSOR: Final = "current_temperature_sensor"
 CONF_HUMIDITY_SENSOR: Final = "humidity_sensor"
+CONF_ZONE_NAMES: Final = "zone_names"
+CONF_CUSTOM_PRESETS: Final = "custom_presets"
 
 # Default values
 DEFAULT_ENTITY_PREFIX: Final = "actron_air_esphome"
-DEFAULT_ZONE_COUNT: Final = 4
 MAX_ZONE_COUNT: Final = 7
 
 # Temperature settings

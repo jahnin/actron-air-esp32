@@ -1,7 +1,7 @@
 import type { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { html, LitElement, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { CARD_VERSION, DEFAULT_ENTITY_PREFIX, DEFAULT_ZONE_COUNT, DEFAULT_ZONE_NAMES, ENTITY_SUFFIXES, MAX_ZONE_COUNT } from './const';
+import { CARD_VERSION, DEFAULT_ZONE_NAMES, ENTITY_SUFFIXES } from './const';
 import { cardStyles } from './styles';
 import type { ActronAirCardConfig, CardState } from './types';
 
@@ -44,27 +44,31 @@ export class ActronAirEsphomeCard extends LitElement {
   }
 
   public static getStubConfig(): Record<string, unknown> {
-    return {
-      entity_prefix: DEFAULT_ENTITY_PREFIX,
-      zone_count: DEFAULT_ZONE_COUNT,
-    };
+    return {};
   }
 
   public setConfig(config: ActronAirCardConfig): void {
-    if (!config.entity_prefix) {
-      throw new Error('Please define entity_prefix');
+    if (!config.climate_entity) {
+      throw new Error('Please select a climate entity');
     }
 
-    this._config = {
-      show_timer: true,
-      show_zones: true,
-      zone_count: DEFAULT_ZONE_COUNT,
-      ...config,
-    };
+    this._config = { ...config };
   }
 
   public getCardSize(): number {
     return 5;
+  }
+
+  private _getClimateEntity() {
+    return this.hass.states[this._config.climate_entity];
+  }
+
+  private _getEntityPrefix(): string | undefined {
+    return this._getClimateEntity()?.attributes?.entity_prefix;
+  }
+
+  private _getZoneCount(): number {
+    return this._getClimateEntity()?.attributes?.zone_count ?? 0;
   }
 
   protected shouldUpdate(changedProps: PropertyValues): boolean {
@@ -77,33 +81,37 @@ export class ActronAirEsphomeCard extends LitElement {
       return true;
     }
 
-    // Only update if relevant entities changed
-    const prefix = this._config.entity_prefix;
-    const relevantEntities = [
-      `sensor.${prefix}_${ENTITY_SUFFIXES.setpointTemperature}`,
-      `switch.${prefix}_${ENTITY_SUFFIXES.power}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.cool}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.heat}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.autoMode}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.run}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanLow}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanMid}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanHigh}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanCont}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.inside}`,
-      `binary_sensor.${prefix}_${ENTITY_SUFFIXES.timer}`,
-    ];
+    // Always track the climate entity
+    const relevantEntities = [this._config.climate_entity];
 
-    const zoneCount = Math.min(this._config.zone_count || DEFAULT_ZONE_COUNT, MAX_ZONE_COUNT);
-    for (let i = 1; i <= zoneCount; i++) {
-      relevantEntities.push(`binary_sensor.${prefix}_zone_${i}`);
+    const prefix = this._getEntityPrefix();
+    if (prefix) {
+      relevantEntities.push(
+        `sensor.${prefix}_${ENTITY_SUFFIXES.setpointTemperature}`,
+        `switch.${prefix}_${ENTITY_SUFFIXES.power}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.cool}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.heat}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.autoMode}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.run}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanLow}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanMid}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanHigh}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.fanCont}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.inside}`,
+        `binary_sensor.${prefix}_${ENTITY_SUFFIXES.timer}`,
+      );
+
+      const zoneCount = this._getZoneCount();
+      for (let i = 1; i <= zoneCount; i++) {
+        relevantEntities.push(`binary_sensor.${prefix}_zone_${i}`);
+      }
     }
 
     return relevantEntities.some((entityId) => oldHass.states[entityId] !== this.hass.states[entityId]);
   }
 
   private _getState(): CardState {
-    const prefix = this._config.entity_prefix;
+    const prefix = this._getEntityPrefix() || '';
     const getEntityState = (domain: string, suffix: string): string => {
       const entityId = `${domain}.${prefix}_${suffix}`;
       return this.hass.states[entityId]?.state || 'unknown';
@@ -134,7 +142,7 @@ export class ActronAirEsphomeCard extends LitElement {
     }
 
     // Get zones
-    const zoneCount = Math.min(this._config.zone_count || DEFAULT_ZONE_COUNT, MAX_ZONE_COUNT);
+    const zoneCount = this._getZoneCount();
     const zones: boolean[] = [];
     for (let i = 1; i <= zoneCount; i++) {
       zones.push(isOn('binary_sensor', `zone_${i}`));
@@ -159,17 +167,23 @@ export class ActronAirEsphomeCard extends LitElement {
   }
 
   private _handlePowerToggle(): void {
-    const entityId = `switch.${this._config.entity_prefix}_${ENTITY_SUFFIXES.power}`;
+    const prefix = this._getEntityPrefix();
+    if (!prefix) return;
+    const entityId = `switch.${prefix}_${ENTITY_SUFFIXES.power}`;
     this.hass.callService('switch', 'toggle', { entity_id: entityId });
   }
 
   private _handleButtonPress(suffix: string): void {
-    const entityId = `button.${this._config.entity_prefix}_${suffix}`;
+    const prefix = this._getEntityPrefix();
+    if (!prefix) return;
+    const entityId = `button.${prefix}_${suffix}`;
     this.hass.callService('button', 'press', { entity_id: entityId });
   }
 
   private _handleZoneToggle(zoneNum: number): void {
-    const entityId = `switch.${this._config.entity_prefix}_zone_${zoneNum}`;
+    const prefix = this._getEntityPrefix();
+    if (!prefix) return;
+    const entityId = `switch.${prefix}_zone_${zoneNum}`;
     this.hass.callService('switch', 'toggle', { entity_id: entityId });
   }
 
@@ -200,13 +214,15 @@ export class ActronAirEsphomeCard extends LitElement {
   }
 
   private _renderZones(state: CardState): TemplateResult {
-    const zoneCount = Math.min(this._config.zone_count || DEFAULT_ZONE_COUNT, MAX_ZONE_COUNT);
+    const zoneCount = this._getZoneCount();
     const zones: TemplateResult[] = [];
+    const climateEntity = this._getClimateEntity();
+    const climateZoneNames: Record<string, string> = climateEntity?.attributes?.zone_names || {};
 
     for (let i = 0; i < zoneCount; i++) {
       const zoneNum = i + 1;
       const isActive = state.zones[i] || false;
-      const zoneName = this._config.zones?.[i]?.name || DEFAULT_ZONE_NAMES[i];
+      const zoneName = climateZoneNames[String(zoneNum)] || DEFAULT_ZONE_NAMES[i];
 
       zones.push(html`
         <button
@@ -229,9 +245,19 @@ export class ActronAirEsphomeCard extends LitElement {
       return html``;
     }
 
+    const climateEntity = this._getClimateEntity();
+    if (!climateEntity) {
+      return html`
+        <ha-card>
+          <div style="padding: 16px; color: var(--primary-text-color, #333);">
+            <p><strong>Climate entity not found:</strong> ${this._config.climate_entity}</p>
+            <p>Ensure the Actron Air ESPHome integration is configured.</p>
+          </div>
+        </ha-card>
+      `;
+    }
+
     const state = this._getState();
-    const showTimer = this._config.show_timer !== false;
-    const showZones = this._config.show_zones !== false;
 
     return html`
       <ha-card>
@@ -288,40 +314,34 @@ export class ActronAirEsphomeCard extends LitElement {
             </div>
           </div>
 
-          ${
-            showTimer
-              ? html`
-                <div class="timer">
-                  <button
-                    class="timer-btn"
-                    @click=${() => this._handleButtonPress(ENTITY_SUFFIXES.timerButton)}
-                  >
-                    TIMER
-                  </button>
-                </div>
+          <div class="timer">
+            <button
+              class="timer-btn"
+              @click=${() => this._handleButtonPress(ENTITY_SUFFIXES.timerButton)}
+            >
+              TIMER
+            </button>
+          </div>
 
-                <div class="timer-up">
-                  <button
-                    class="timer-arrow"
-                    @click=${() => this._handleButtonPress(ENTITY_SUFFIXES.timerUp)}
-                  >
-                    <ha-icon icon="mdi:triangle"></ha-icon>
-                  </button>
-                </div>
+          <div class="timer-up">
+            <button
+              class="timer-arrow"
+              @click=${() => this._handleButtonPress(ENTITY_SUFFIXES.timerUp)}
+            >
+              <ha-icon icon="mdi:triangle"></ha-icon>
+            </button>
+          </div>
 
-                <div class="timer-down">
-                  <button
-                    class="timer-arrow"
-                    @click=${() => this._handleButtonPress(ENTITY_SUFFIXES.timerDown)}
-                  >
-                    <ha-icon icon="mdi:triangle-down"></ha-icon>
-                  </button>
-                </div>
-              `
-              : ''
-          }
+          <div class="timer-down">
+            <button
+              class="timer-arrow"
+              @click=${() => this._handleButtonPress(ENTITY_SUFFIXES.timerDown)}
+            >
+              <ha-icon icon="mdi:triangle-down"></ha-icon>
+            </button>
+          </div>
 
-          ${showZones ? this._renderZones(state) : html``}
+          ${this._renderZones(state)}
         </div>
       </ha-card>
     `;

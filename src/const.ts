@@ -1,8 +1,4 @@
-export const CARD_VERSION = '0.1.1';
-
-export const DEFAULT_ENTITY_PREFIX = 'actron_air_esphome';
-export const DEFAULT_ZONE_COUNT = 4;
-export const MAX_ZONE_COUNT = 8;
+export const CARD_VERSION = '2.1.1';
 
 export const ENTITY_SUFFIXES = {
   // Sensors

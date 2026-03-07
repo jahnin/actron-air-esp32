@@ -30,10 +30,51 @@
           "current_temperature_sensor": "An external temperature sensor to display current room temperature",
           "humidity_sensor": "An external humidity sensor to display current humidity"
         }
+      },
+      "zone_names": {
+        "title": "Zone Names",
+        "description": "Give each zone a friendly name. These names will appear as presets on the climate entity and in the Lovelace card.",
+        "data": {
+          "zone_1_name": "Zone 1",
+          "zone_2_name": "Zone 2",
+          "zone_3_name": "Zone 3",
+          "zone_4_name": "Zone 4",
+          "zone_5_name": "Zone 5",
+          "zone_6_name": "Zone 6",
+          "zone_7_name": "Zone 7"
+        }
+      },
+      "preset_menu": {
+        "title": "Custom Presets",
+        "description": "Custom presets activate multiple zones at once. Current presets: {presets}",
+        "menu_options": {
+          "add_preset": "Add a preset",
+          "finish": "Finish"
+        }
+      },
+      "add_preset": {
+        "title": "Add Custom Preset",
+        "description": "Create a preset that activates multiple zones at once.",
+        "data": {
+          "preset_name": "Preset Name",
+          "preset_zones": "Zones"
+        },
+        "data_description": {
+          "preset_name": "A unique name for this preset (e.g., Downstairs)",
+          "preset_zones": "Select which zones this preset should activate"
+        }
+      },
+      "finish": {
+        "title": "Configuration Complete"
       }
     },
     "error": {
-      "entity_not_found": "Could not find ESPHome entities with this prefix. Ensure your ESPHome device is connected and the prefix is correct."
+      "entity_not_found": "Could not find ESPHome entities with this prefix. Ensure your ESPHome device is connected and the prefix is correct.",
+      "preset_name_required": "Preset name is required.",
+      "preset_name_reserved": "This name is reserved and cannot be used.",
+      "preset_name_duplicate": "A preset with this name already exists.",
+      "preset_name_conflicts_zone": "This name conflicts with a zone name.",
+      "preset_zones_required": "At least one zone must be selected."
     },
     "abort": {
       "already_configured": "This entity prefix is already configured."
@@ -48,6 +89,42 @@
           "current_temperature_sensor": "Current Temperature Sensor",
           "humidity_sensor": "Humidity Sensor"
         }
+      },
+      "zone_names": {
+        "title": "Zone Names",
+        "description": "Give each zone a friendly name. These names will appear as presets on the climate entity and in the Lovelace card.",
+        "data": {
+          "zone_1_name": "Zone 1",
+          "zone_2_name": "Zone 2",
+          "zone_3_name": "Zone 3",
+          "zone_4_name": "Zone 4",
+          "zone_5_name": "Zone 5",
+          "zone_6_name": "Zone 6",
+          "zone_7_name": "Zone 7"
+        }
+      },
+      "preset_menu": {
+        "title": "Custom Presets",
+        "description": "Custom presets activate multiple zones at once. Current presets: {presets}",
+        "menu_options": {
+          "add_preset": "Add a preset",
+          "finish": "Finish"
+        }
+      },
+      "add_preset": {
+        "title": "Add Custom Preset",
+        "description": "Create a preset that activates multiple zones at once.",
+        "data": {
+          "preset_name": "Preset Name",
+          "preset_zones": "Zones"
+        },
+        "data_description": {
+          "preset_name": "A unique name for this preset (e.g., Downstairs)",
+          "preset_zones": "Select which zones this preset should activate"
+        }
+      },
+      "finish": {
+        "title": "Configuration Complete"
       }
     }
   }

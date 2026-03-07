@@ -25,7 +25,8 @@
     "lint:biome": "biome check",
     "lint:types": "tsc --noEmit",
     "lint:knip": "knip",
-    "knip": "knip"
+    "knip": "knip",
+    "remote": "vite build && ssh root@homeassistant.local 'rm -rf /config/custom_components/actron_air_esphome' && scp -r custom_components/* root@homeassistant.local:/config/custom_components/actron_air_esphome && scp dist/assets/index*.js root@homeassistant.local:/config/custom_components/actron_air_esphome/frontend/actron-air-esphome-card.js"
   },
   "dependencies": {
     "custom-card-helpers": "^1.9.0",

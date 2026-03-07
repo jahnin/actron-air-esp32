@@ -21,10 +21,11 @@ from homeassistant.helpers.event import async_track_state_change_event
 
 from .const import (
     CONF_CURRENT_TEMP_SENSOR,
+    CONF_CUSTOM_PRESETS,
     CONF_ENTITY_PREFIX,
     CONF_HUMIDITY_SENSOR,
     CONF_ZONE_COUNT,
-    DEFAULT_ZONE_COUNT,
+    CONF_ZONE_NAMES,
     DOMAIN,
     ENTITY_SUFFIXES,
     FAN_MODE_HIGH,
@@ -38,7 +39,6 @@ from .const import (
     MAX_TEMP,
     MIN_TEMP,
     PRESET_ALL_ZONES,
-    PRESET_ZONE_PREFIX,
     TEMP_STEP,
 )
 
@@ -48,6 +48,11 @@ _LOGGER = logging.getLogger(__name__)
 BUTTON_PRESS_DELAY = 1.0
 
 
+def _get_merged_config(entry: ConfigEntry, key: str, default: Any = None) -> Any:
+    """Get a config value from options, falling back to data."""
+    return entry.options.get(key, entry.data.get(key, default))
+
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -55,9 +60,11 @@ async def async_setup_entry(
 ) -> None:
     """Set up Actron Air ESPHome climate from a config entry."""
     entity_prefix = entry.data[CONF_ENTITY_PREFIX]
-    zone_count = int(entry.data.get(CONF_ZONE_COUNT, DEFAULT_ZONE_COUNT))
-    current_temp_sensor = entry.data.get(CONF_CURRENT_TEMP_SENSOR)
-    humidity_sensor = entry.data.get(CONF_HUMIDITY_SENSOR)
+    zone_count = int(_get_merged_config(entry, CONF_ZONE_COUNT))
+    current_temp_sensor = _get_merged_config(entry, CONF_CURRENT_TEMP_SENSOR)
+    humidity_sensor = _get_merged_config(entry, CONF_HUMIDITY_SENSOR)
+    zone_names = _get_merged_config(entry, CONF_ZONE_NAMES, {})
+    custom_presets = _get_merged_config(entry, CONF_CUSTOM_PRESETS, {})
 
     async_add_entities(
         [
@@ -68,6 +75,8 @@ async def async_setup_entry(
                 zone_count,
                 current_temp_sensor,
                 humidity_sensor,
+                zone_names,
+                custom_presets,
             )
         ]
     )
@@ -106,6 +115,8 @@ class ActronAirClimate(ClimateEntity):
         zone_count: int,
         current_temp_sensor: str | None,
         humidity_sensor: str | None,
+        zone_names: dict[str, str],
+        custom_presets: dict[str, list[int]],
     ) -> None:
         """Initialise the climate entity."""
         self.hass = hass
@@ -114,6 +125,8 @@ class ActronAirClimate(ClimateEntity):
         self._zone_count = zone_count
         self._current_temp_sensor = current_temp_sensor
         self._humidity_sensor = humidity_sensor
+        self._zone_names = zone_names
+        self._custom_presets = custom_presets
         self._attr_unique_id = f"{entity_prefix}_climate"
 
         # Build preset modes list
@@ -123,11 +136,24 @@ class ActronAirClimate(ClimateEntity):
         self._temp_entity = f"sensor.{entity_prefix}_{ENTITY_SUFFIXES['setpoint_temp']}"
         self._power_entity = f"switch.{entity_prefix}_{ENTITY_SUFFIXES['power']}"
 
+    def _get_zone_name(self, zone_num: int) -> str:
+        """Get the display name for a zone."""
+        return self._zone_names.get(str(zone_num), f"Zone {zone_num}")
+
+    def _get_zone_number_by_name(self, name: str) -> int | None:
+        """Resolve a zone name to its zone number."""
+        for i in range(1, self._zone_count + 1):
+            if self._get_zone_name(i) == name:
+                return i
+        return None
+
     def _build_preset_modes(self) -> list[str]:
         """Build the list of preset modes based on zone count."""
         presets = []
         for i in range(1, self._zone_count + 1):
-            presets.append(f"{PRESET_ZONE_PREFIX}{i}")
+            presets.append(self._get_zone_name(i))
+        for name in self._custom_presets:
+            presets.append(name)
         if self._zone_count > 1:
             presets.append(PRESET_ALL_ZONES)
 
@@ -302,20 +328,40 @@ class ActronAirClimate(ClimateEntity):
     @property
     def preset_mode(self) -> str | None:
         """Return the current preset mode based on active zones."""
-        active_zones = []
+        active_zones = set()
         for i in range(1, self._zone_count + 1):
             if self._is_zone_on(i):
-                active_zones.append(i)
+                active_zones.add(i)
 
-        if len(active_zones) == 0:
+        if not active_zones:
             return None
-        elif len(active_zones) == self._zone_count:
-            return PRESET_ALL_ZONES
-        elif len(active_zones) == 1:
-            return f"{PRESET_ZONE_PREFIX}{active_zones[0]}"
 
-        # Multiple but not all zones - return first active
-        return f"{PRESET_ZONE_PREFIX}{active_zones[0]}"
+        if len(active_zones) == self._zone_count:
+            return PRESET_ALL_ZONES
+
+        # Check custom presets
+        for name, zones in self._custom_presets.items():
+            if active_zones == set(zones):
+                return name
+
+        # Single zone
+        if len(active_zones) == 1:
+            zone_num = next(iter(active_zones))
+            return self._get_zone_name(zone_num)
+
+        return None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return extra state attributes including zone names and count."""
+        return {
+            "entity_prefix": self._entity_prefix,
+            "zone_count": self._zone_count,
+            "zone_names": {
+                str(i): self._get_zone_name(i)
+                for i in range(1, self._zone_count + 1)
+            },
+        }
 
     async def _press_button(self, suffix_key: str) -> None:
         """Press a button entity."""
@@ -442,23 +488,35 @@ class ActronAirClimate(ClimateEntity):
                 if not self._is_zone_on(i):
                     await self._set_switch(self._get_zone_switch_id(i), True)
                     await asyncio.sleep(BUTTON_PRESS_DELAY)
-        elif preset_mode.startswith(PRESET_ZONE_PREFIX):
-            # Single zone preset
-            try:
-                target_zone = int(preset_mode.replace(PRESET_ZONE_PREFIX, ""))
-            except ValueError:
-                _LOGGER.error("Invalid preset mode: %s", preset_mode)
+            return
 
-                return
-
-            # Turn on target zone, turn off others
+        # Check custom presets
+        if preset_mode in self._custom_presets:
+            target_zones = set(self._custom_presets[preset_mode])
             for i in range(1, self._zone_count + 1):
-                should_be_on = i == target_zone
+                should_be_on = i in target_zones
                 is_on = self._is_zone_on(i)
-
                 if should_be_on != is_on:
-                    await self._set_switch(self._get_zone_switch_id(i), should_be_on)
+                    await self._set_switch(
+                        self._get_zone_switch_id(i), should_be_on
+                    )
                     await asyncio.sleep(BUTTON_PRESS_DELAY)
+            return
+
+        # Zone name preset — resolve to zone number
+        target_zone = self._get_zone_number_by_name(preset_mode)
+        if target_zone is None:
+            _LOGGER.error("Invalid preset mode: %s", preset_mode)
+            return
+
+        # Turn on target zone, turn off others
+        for i in range(1, self._zone_count + 1):
+            should_be_on = i == target_zone
+            is_on = self._is_zone_on(i)
+
+            if should_be_on != is_on:
+                await self._set_switch(self._get_zone_switch_id(i), should_be_on)
+                await asyncio.sleep(BUTTON_PRESS_DELAY)
 
     async def async_turn_on(self) -> None:
         """Turn the entity on."""

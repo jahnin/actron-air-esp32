@@ -1,17 +1,8 @@
 import type { LovelaceCardConfig } from 'custom-card-helpers';
 
-export interface ZoneConfig {
-  name: string;
-}
-
 export interface ActronAirCardConfig extends LovelaceCardConfig {
   type: string;
-  entity_prefix: string;
-  name?: string;
-  show_timer?: boolean;
-  show_zones?: boolean;
-  zone_count?: number;
-  zones?: ZoneConfig[];
+  climate_entity: string;
 }
 
 export interface CardState {
