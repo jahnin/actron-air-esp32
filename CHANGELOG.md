@@ -1,3 +1,10 @@
+## [0.3.5](https://github.com/johnf/actron-air-esphome/compare/v0.3.4...v0.3.5) (2026-03-07)
+
+### Bug Fixes
+
+* add S as an LCD code ([bf1adad](https://github.com/johnf/actron-air-esphome/commit/bf1adad966e05d898c4bd3f085839d7f8da1d682))
+* switch fan and mode on display ([5452835](https://github.com/johnf/actron-air-esphome/commit/54528351f58ed823bb89c1d3d22536c17b389ba9))
+
 ## [0.3.4](https://github.com/johnf/actron-air-esphome/compare/v0.3.3...v0.3.4) (2026-02-15)
 
 ### Bug Fixes
