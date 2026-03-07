@@ -1,19 +1,7 @@
 import type { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
-import {
-  html,
-  LitElement,
-  type PropertyValues,
-  type TemplateResult,
-} from 'lit';
+import { html, LitElement, type PropertyValues, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import {
-  CARD_VERSION,
-  DEFAULT_ENTITY_PREFIX,
-  DEFAULT_ZONE_COUNT,
-  DEFAULT_ZONE_NAMES,
-  ENTITY_SUFFIXES,
-  MAX_ZONE_COUNT,
-} from './const';
+import { CARD_VERSION, DEFAULT_ENTITY_PREFIX, DEFAULT_ZONE_COUNT, DEFAULT_ZONE_NAMES, ENTITY_SUFFIXES, MAX_ZONE_COUNT } from './const';
 import { cardStyles } from './styles';
 import type { ActronAirCardConfig, CardState } from './types';
 
@@ -52,9 +40,7 @@ export class ActronAirEsphomeCard extends LitElement {
   @state() private _config!: ActronAirCardConfig;
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    return document.createElement(
-      'actron-air-esphome-card-editor',
-    ) as LovelaceCardEditor;
+    return document.createElement('actron-air-esphome-card-editor') as LovelaceCardEditor;
   }
 
   public static getStubConfig(): Record<string, unknown> {
@@ -108,17 +94,12 @@ export class ActronAirEsphomeCard extends LitElement {
       `binary_sensor.${prefix}_${ENTITY_SUFFIXES.timer}`,
     ];
 
-    const zoneCount = Math.min(
-      this._config.zone_count || DEFAULT_ZONE_COUNT,
-      MAX_ZONE_COUNT,
-    );
+    const zoneCount = Math.min(this._config.zone_count || DEFAULT_ZONE_COUNT, MAX_ZONE_COUNT);
     for (let i = 1; i <= zoneCount; i++) {
       relevantEntities.push(`binary_sensor.${prefix}_zone_${i}`);
     }
 
-    return relevantEntities.some(
-      (entityId) => oldHass.states[entityId] !== this.hass.states[entityId],
-    );
+    return relevantEntities.some((entityId) => oldHass.states[entityId] !== this.hass.states[entityId]);
   }
 
   private _getState(): CardState {
@@ -153,10 +134,7 @@ export class ActronAirEsphomeCard extends LitElement {
     }
 
     // Get zones
-    const zoneCount = Math.min(
-      this._config.zone_count || DEFAULT_ZONE_COUNT,
-      MAX_ZONE_COUNT,
-    );
+    const zoneCount = Math.min(this._config.zone_count || DEFAULT_ZONE_COUNT, MAX_ZONE_COUNT);
     const zones: boolean[] = [];
     for (let i = 1; i <= zoneCount; i++) {
       zones.push(isOn('binary_sensor', `zone_${i}`));
@@ -222,10 +200,7 @@ export class ActronAirEsphomeCard extends LitElement {
   }
 
   private _renderZones(state: CardState): TemplateResult {
-    const zoneCount = Math.min(
-      this._config.zone_count || DEFAULT_ZONE_COUNT,
-      MAX_ZONE_COUNT,
-    );
+    const zoneCount = Math.min(this._config.zone_count || DEFAULT_ZONE_COUNT, MAX_ZONE_COUNT);
     const zones: TemplateResult[] = [];
 
     for (let i = 0; i < zoneCount; i++) {

@@ -1,12 +1,10 @@
 services:
   homeassistant:
     image: ghcr.io/home-assistant/home-assistant:stable
-    container_name: homeassistant-dev
+    container_name: actron-air-esphome
     restart: unless-stopped
     network_mode: host
     volumes:
       - ./ha-config:/config
-      - ./custom_components/actron_air_esphome:/config/custom_components/actron_air_esphome
-      - ./custom_components/actron_air_esphome/frontend/actron-air-esphome-card.js:/config/www/actron-air-esphome-card.js:ro
     environment:
       - TZ=Australia/Sydney

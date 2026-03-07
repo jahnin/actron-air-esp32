@@ -16,3 +16,4 @@ ha-config/tts/
 ha-config/blueprints/
 ha-config/deps/
 ha-config/.ha_run.lock
+ha-config/www

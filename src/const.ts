@@ -1,4 +1,4 @@
-export const CARD_VERSION = '0.1.0';
+export const CARD_VERSION = '0.1.1';
 
 export const DEFAULT_ENTITY_PREFIX = 'actron_air_esphome';
 export const DEFAULT_ZONE_COUNT = 4;
@@ -33,13 +33,4 @@ export const ENTITY_SUFFIXES = {
   timerDown: 'timer_down',
 } as const;
 
-export const DEFAULT_ZONE_NAMES = [
-  'Zone 1',
-  'Zone 2',
-  'Zone 3',
-  'Zone 4',
-  'Zone 5',
-  'Zone 6',
-  'Zone 7',
-  'Zone 8',
-];
+export const DEFAULT_ZONE_NAMES = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5', 'Zone 6', 'Zone 7', 'Zone 8'];

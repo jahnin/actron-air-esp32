@@ -1,19 +1,11 @@
 import type { HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
 import { css, html, LitElement, type TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import {
-  DEFAULT_ENTITY_PREFIX,
-  DEFAULT_ZONE_COUNT,
-  DEFAULT_ZONE_NAMES,
-  MAX_ZONE_COUNT,
-} from './const';
+import { DEFAULT_ENTITY_PREFIX, DEFAULT_ZONE_COUNT, DEFAULT_ZONE_NAMES, MAX_ZONE_COUNT } from './const';
 import type { ActronAirCardConfig } from './types';
 
 @customElement('actron-air-esphome-card-editor')
-export class ActronAirEsphomeCardEditor
-  extends LitElement
-  implements LovelaceCardEditor
-{
+export class ActronAirEsphomeCardEditor extends LitElement implements LovelaceCardEditor {
   @property({ attribute: false }) public hass!: HomeAssistant;
   @state() private _config!: ActronAirCardConfig;
 
@@ -151,8 +143,7 @@ export class ActronAirEsphomeCardEditor
         <div class="zone-names">
           <label>Zone Names</label>
           ${Array.from({ length: zoneCount }, (_, i) => {
-            const zoneName =
-              this._config.zones?.[i]?.name || DEFAULT_ZONE_NAMES[i];
+            const zoneName = this._config.zones?.[i]?.name || DEFAULT_ZONE_NAMES[i];
 
             return html`
               <div class="zone-name-field">
@@ -244,10 +235,7 @@ export class ActronAirEsphomeCardEditor
 
 // Explicit registration to ensure element is defined after minification
 if (!customElements.get('actron-air-esphome-card-editor')) {
-  customElements.define(
-    'actron-air-esphome-card-editor',
-    ActronAirEsphomeCardEditor,
-  );
+  customElements.define('actron-air-esphome-card-editor', ActronAirEsphomeCardEditor);
 }
 
 declare global {
