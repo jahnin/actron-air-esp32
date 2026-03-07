@@ -1,3 +1,13 @@
+## [0.4.0](https://github.com/johnf/actron-air-esphome/compare/v0.3.5...v0.4.0) (2026-03-07)
+
+### Features
+
+* update version script to also set package.json and CARD_VERSION ([74214e3](https://github.com/johnf/actron-air-esphome/commit/74214e373b0e2b3b7784034fa1a8bd0430ee43a5))
+
+### Bug Fixes
+
+* add mising index.html for build ([288a811](https://github.com/johnf/actron-air-esphome/commit/288a811cbe44fa5ff6bae082be3c56a2e45ff09b))
+
 ## [0.3.5](https://github.com/johnf/actron-air-esphome/compare/v0.3.4...v0.3.5) (2026-03-07)
 
 ### Bug Fixes
