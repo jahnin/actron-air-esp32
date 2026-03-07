@@ -28,7 +28,7 @@ export default {
     [
       '@semantic-release/git',
       {
-        assets: ['CHANGELOG.md', 'package.json', 'manifest.json'],
+        assets: ['CHANGELOG.md', 'package.json', 'custom_components/actron_air_esphome/manifest.json', 'src/const.ts'],
       },
     ],
   ],

@@ -28,6 +28,9 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
 
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -42,9 +45,6 @@ jobs:
             --package @semantic-release/git  \
             --package @semantic-release/exec \
             semantic-release
-
-      - name: Install dependencies
-        run: pnpm install
 
       - name: Build Lovelace card
         run: pnpm run build
