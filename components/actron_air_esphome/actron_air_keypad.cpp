@@ -28,7 +28,7 @@ static constexpr std::array<BinarySensorMapping, BINARY_SENSOR_COUNT>
         {LedIndex::ZONE_2, false},
         {LedIndex::ZONE_3, false},
         {LedIndex::ZONE_4, false},
-        {LedIndex::ZONE_5, true},  // Zones 5-8 have inverted logic
+        {LedIndex::ZONE_5, true}, // Zones 5-8 have inverted logic
         {LedIndex::ZONE_6, true},
         {LedIndex::ZONE_7, true},
         {LedIndex::ZONE_8, true},
@@ -72,6 +72,8 @@ char ActronAirKeypad::decode_digit(uint8_t pattern) {
     return 'E'; // ADEFG
   case 0x73:
     return 'P'; // ABEFG
+  case 0x5F:
+    return 'S'; // AFGCD
 
   default:
     ESP_LOGE(TAG, "Unknown 7-segment pattern: 0x%02X", pattern);
