@@ -32,7 +32,7 @@ export const cardStyles = css`
     grid-gap: 6px;
     grid-template-areas:
       'lcd lcd lcd lcd lcd lcd lcd power'
-      'mode mode logo logo logo logo fan fan'
+      'fan fan logo logo logo logo mode mode'
       '. . . . . . . .'
       'temp-up temp-up set-temp set-temp timer timer timer-up timer-up'
       'temp-down temp-down set-temp set-temp . . timer-down timer-down'
