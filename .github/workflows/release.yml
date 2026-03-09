@@ -51,6 +51,8 @@ jobs:
 
       - name: Create integration zip
         run: |
+          pnpm run build
+          cp dist/assets/index*.js custom_components/actron_air_esphome/frontend/actron-air-esphome-card.js"
           cd custom_components/actron_air_esphome
           zip -r ../../actron_air_esphome.zip .
 
