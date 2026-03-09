@@ -1,4 +1,4 @@
-export const CARD_VERSION = '1.0.1';
+export const CARD_VERSION = '1.0.2';
 
 export const ENTITY_SUFFIXES = {
   // Sensors
