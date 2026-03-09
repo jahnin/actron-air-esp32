@@ -1,6 +1,6 @@
 {
   "name": "actron-air-esphome-card",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Custom Lovelace card for Actron Air ESPHome Keypad",
   "keywords": [
     "home-assistant",
