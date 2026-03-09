@@ -1,3 +1,9 @@
+## [1.0.3](https://github.com/johnf/actron-air-esphome/compare/v1.0.2...v1.0.3) (2026-03-09)
+
+### Bug Fixes
+
+* bug with release process ([ffe627b](https://github.com/johnf/actron-air-esphome/commit/ffe627bc1e2bde6c03c7f92637c7a769fdad3af9))
+
 ## [1.0.2](https://github.com/johnf/actron-air-esphome/compare/v1.0.1...v1.0.2) (2026-03-09)
 
 ### Bug Fixes
