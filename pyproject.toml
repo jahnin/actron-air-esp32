@@ -1,9 +1,0 @@
-[project]
-name = "actron-air-esphome"
-version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
-dependencies = [
-    "esphome>=1.11.2",
-    "homeassistant>=2025.4.4",
-]
