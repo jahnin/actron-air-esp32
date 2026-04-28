@@ -8,7 +8,7 @@ https://github.com/johnf/actron-air-esphome
 
 # Hardware
 - LM24-8 Wall Controller (LM78Z4)
-  ![](https://github.com/jahnin/actron-air-esp32/images/wall-controller.jpg)
+  ![](https://github.com/jahnin/actron-air-esp32/blob/main/images/wall-controller.jpg)
 - 
 
 # How does it work?
