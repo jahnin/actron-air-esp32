@@ -1,4 +1,37 @@
-# Actron Air ESPHome Integration for Home Assistant
+# WiFi Control for Ducted Actron Air Conditioners using ESP32 and ESPHome.
+
+This project enables WiFi control for Actron Air conditioning systems by interfacing an ESP32 running ESPHome directly with the existing wall panel hardware through Home Assistant. 
+
+This is based on:
+https://community.home-assistant.io/t/actron-aircon-esp32-controller-help/609062
+https://github.com/johnf/actron-air-esphome
+
+# Hardware
+- LM24-8 Wall Controller (LM78Z4)
+[](/images/wall-controller.jpg)
+- 
+
+# How does it work?
+The system operates by transparently "eavesdropping" on and "mimicking" the signals that are sent between the Actron indoor unit and the wall-mounted controller. 
+
+ESP32 is used to interface directly with the Actron Air wall panel by using a Digital-to-Analog Converter (DAC) and Interrupt Service Routine (ISRs). 
+The DAC helps to command the unit, while the ISR helps to read and decode its current status.
+
+# Aircon Wall Panel
+There are 4 wires that are connected to the wall panel controller
+
+Power (+19V) This is the main supply line from the indoor unit's control board. Purpose: Provides the "juice" to run the wall panel's LCD, backlight, and internal logic. This wire carries a high-speed pulse train. It broadcasts the current state of the system (e.g., "The room is 22°C," "Compressor is ON," "Fan is High").
+
+COM (Common / Ground) The reference point for the entire system. Purpose: Completes the circuit for both the Power and the Signal lines.
+
+KEY (The Command Line) This is the "Input" from the wall panel back to the AC unit. Purpose: It handles the user's physical interactions. When you press a button on the panel, it modifies the electrical state of this wire (usually pulling it to ground or changing resistance) to tell the AC unit to change a setting. Interfacing: This is where your DAC and NPN Transistor are connected. By mimicking the electrical signature of a button press on this wire, the ESP32 can "force" the AC unit to turn on/off or change modes.
+
+SENSE Connected to the internal temperature sensor.
+
+Card displays the same status like the Decodes the An ESPHome external component for reading and decoding pulse trains from the Actron Air ESP32 keypad display, plus a Home Assistant integration with climate entity and custom Lovelace card.
+
+
+Actron Air ESPHome Integration for Home Assistant
 
 An ESPHome external component for reading and decoding pulse trains from the
 Actron Air ESP32 keypad display, plus a Home Assistant integration with climate
