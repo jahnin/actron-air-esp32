@@ -6,7 +6,7 @@ This is based on:
 https://community.home-assistant.io/t/actron-aircon-esp32-controller-help/609062
 https://github.com/johnf/actron-air-esphome
 
-# Hardware
+# Aircon Hardware
 - LM24-8 Wall Controller (LM78Z4)
   ![](https://github.com/jahnin/actron-air-esp32/blob/main/images/wall-controller.jpg)
 - 
