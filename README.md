@@ -72,7 +72,7 @@ KEY ─────────────────────────�
 - BC549 NPN Transistor
 - Resistors - 20kΩ, 4.7KΩ and 800Ω (Do not use 1KΩ as this does not drop the voltage to ~2.8V which is ideal)
 - IN1N5817 Diode
-- 
+- 50V 100MF capacitor
 
 Actron Air ESPHome Integration for Home Assistant
 
