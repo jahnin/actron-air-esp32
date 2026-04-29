@@ -33,7 +33,15 @@ The key line is how you mimic a key press on the wall panel. Everytime you press
 You measure this unique voltage for each button manually. The ESP32 is then programmed to drop the voltage to the calculated unique voltage, between the key line and ground, to mimic a button press.
 
 # Circuit
+![](https://github.com/jahnin/actron-air-esp32/blob/main/images/circuit.png)
 
+# Hardware Requirements
+- ESP32 C3 SuperMini
+- Circuit Boards
+- MCP4725 DAC
+- DC-DC Step-Down Power Supply Module - Accept 19v input and step down to 5V 
+- BC549 NPN Transistor
+- Resistors - 20kΩ, 4.7KΩ and 800Ω (Do not use 1KΩ as this does not drop the voltage to ~2.8V which is ideal)
 
 Actron Air ESPHome Integration for Home Assistant
 
@@ -41,25 +49,8 @@ An ESPHome external component for reading and decoding pulse trains from the
 Actron Air ESP32 keypad display, plus a Home Assistant integration with climate
 entity and custom Lovelace card.
 
-## Key Features
 
-- **Interrupt-driven reading**: Accurate pulse train capture
-- **40-bit decoding**: Full status from keypad display
-- **Temperature display**: 7-segment decoder for setpoint
-- **18 binary sensors**: Mode, fan, zones, timers
-- **Error tracking**: Bit count for monitoring reliability
-- **Type-safe config**: ESPHome validation for all settings
-- **Climate entity**: Full HVAC control with zone presets
-- **Custom Lovelace card**: Retro keypad-style control interface
 
-## Hardware Requirements
-
-- ESP32 (ESP-IDF framework)
-- GPIO pin for pulse train input
-- Connection to air conditioner keypad display output
-- MCP4725 or MCP4726 DAC (I2C) for keypad button emulation
-- BC548 NPN transistor
-- Resistors: 20kΩ, 4.7kΩ, 1.2kΩ (0.5W or higher)
 
 See the [forum thread](https://community.home-assistant.io/t/actron-aircon-esp32-controller-help/609062)
 for detailed build instructions and wiring diagrams.
