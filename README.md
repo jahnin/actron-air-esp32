@@ -99,10 +99,10 @@ A digital signal is binary: it is either High (2.82V in my example) or Low (0V/G
 This project uses the falling edge(ie. transition from 2.82v to 0v). Inside that ISR, you record the current time using micros(). By subtracting the previous timestamp from the current one, you get the duration of the pulse(or width of the pulse). The width of the pulse denotes if the bit is a 0 or 1. 
 
 ### Gotcha
-From components/actron_air_esphome/actron_air_keypad.h
-**PULSE_THRESHOLD_US = 1000:** This is the "divider." Any pulse shorter than this is a 0; any longer is a 1.
-**START_CONDITION_US = 2700:** A pulse of this length signals the beginning of a data transmission.
-**FRAME_BOUNDARY_US = 3500:** A pulse of this length (or longer) indicates the end of a message frame.
+From **components/actron_air_esphome/actron_air_keypad.h**
+- **PULSE_THRESHOLD_US = 1000:** This is the "divider." Any pulse shorter than this is a 0; any longer is a 1.
+- **START_CONDITION_US = 2700:** A pulse of this length signals the beginning of a data transmission.
+- **FRAME_BOUNDARY_US = 3500:** A pulse of this length (or longer) indicates the end of a message frame.
 
 # Hardware Requirements
 - ESP32 C3 SuperMini
