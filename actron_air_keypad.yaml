@@ -1,49 +1,87 @@
-# ESPHome Package for Actron Air Keypad
-# Include this package in your ESPHome configuration and provide your own
-# esphome name, wifi credentials, and optionally override any substitutions.
-#
-# Usage:
-#   packages:
-#     actron_air: github://johnf/actron-air-esphome/actron_air_keypad.yaml@main
-#
-# All substitutions below can be overridden in your configuration.
+wifi:
+  ssid: "zion-iot"
+  password: "W@YB@3K2Z10N"
+  use_address: 172.16.30.71
 
+        
 substitutions:
-  # GPIO Configuration
-  gpio_keypad_pin: "GPIO32"
-  gpio_i2c_sda: "GPIO21"
-  gpio_i2c_scl: "GPIO22"
+  gpio_keypad_pin: "GPIO4"
+  gpio_i2c_sda: "GPIO10"
+  gpio_i2c_scl: "GPIO3"
 
-  # DAC I2C address (default 0x60 for MCP4725)
+  voltage_power: "5000"
+  
+  # Keypad fan: 3221
+  voltage_fan: "725.0"
+
+  # Keypad mode: 450
+  voltage_mode: "936.0"
+  
+  # Keypad_temp_up: 1504
+  voltage_temp_up: "857"
+
+  #Keypad_temp_down: 2864
+  voltage_temp_down: "756.0"
+
+  # Keypad_timer: 1848
+  voltage_timer: "827.5"
+
+  # Keypad_timer_up: 2227
+  voltage_timer_up: "796.0"
+
+  # Keypad_timer_down: 2523
+  voltage_timer_down: "776.0"
+
+  # Keypad_zone_1: 3551
+  voltage_zone_1: "699.0"
+
+  # Keypad_zone_2: 4223
+  voltage_zone_2: "641.0"
+
+  # Keypad_zone_3: 3863
+  voltage_zone_3: "667.0"
+
+  # Keypad_zone_4: 4664
+  voltage_zone_4: "605.0"
+
+  # Keypad_zone_5: 650
+  voltage_zone_5: "913.0"
+
+  board: "esp32-c3-devkitm-1"
+  variant: "ESP32C3"
+  framework: "arduino"
+  version: "latest"
+  # log level - WARN ERROR DEBUG VERBOSE
+  log_level: "WARN"
   dac_output_address: "0x60"
 
-  # DAC voltage values for button presses (in millivolts)
-  voltage_power: "5000.0"
-  voltage_fan: "755.0"
-  voltage_mode: "620.0"
-  voltage_temp_up: "889.0"
-  voltage_temp_down: "782.0"
-  voltage_timer: "862"
-  voltage_timer_up: "828.0"
-  voltage_timer_down: "808.0"
-
-  # Zone voltage values (calibrate for your keypad)
-  voltage_zone_1: "725.0"
-  voltage_zone_2: "663.0"
-  voltage_zone_3: "695.0"
-  voltage_zone_4: "650.0"
-  voltage_zone_5: "635.0"
-  voltage_zone_6: "620.0"
-  voltage_zone_7: "605.0"
-  voltage_zone_8: "590.0"
+esphome:
+  name: "actron"
+  friendly_name: Actron Wifi
+  platformio_options:
+    board_build.flash_mode: dio
+  # Disable power-on on boot.
+  on_boot:
+    priority: -100  # Run after everything else initialises
+    then:
+      - lambda: |-
+          id(boot_complete) = true;
 
 esp32:
-  variant: esp32
+  board: ${board}
+  variant: ${variant}
   framework:
-    type: esp-idf
+    type: ${framework}
+    version: ${version}
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [actron_air_esphome]
 
 logger:
-
+  level: ${log_level}
 api:
 
 ota:
@@ -58,6 +96,7 @@ web_server:
 i2c:
   sda: ${gpio_i2c_sda}
   scl: ${gpio_i2c_scl}
+  scan: True
 
 # MCP4725 output to send voltages for key presses
 output:
@@ -71,6 +110,9 @@ globals:
   - id: prev_fan
     type: std::string
     initial_value: '"Unset"'
+  - id: boot_complete   # Disable power-on on boot
+    type: bool
+    initial_value: 'false'
 
 # DAC output control for testing
 number:
@@ -96,11 +138,15 @@ button:
     on_press:
       - logger.log: Button Pressed
       - lambda: |-
+          if (!id(boot_complete)) {
+            ESP_LOGW("actron", "Ignoring button press during boot");
+            return;
+          }
           id(dac_output).set_level((id(dac_value) / 5000.0));
-      - delay: 250ms
+      - delay: 500ms
       - lambda: |-
           id(dac_output).set_level((0.0 / 5000.0));
-      - delay: 250ms
+      - delay: 500ms
 
   - platform: template
     name: "Fan"
@@ -245,53 +291,6 @@ switch:
           id(press_button).press();
     lambda: return id(zone_5).state;
 
-  - platform: template
-    id: zone_6_switch
-    name: "Zone 6"
-    icon: mdi:air-conditioner
-    turn_on_action:
-      - lambda: |-
-          id(dac_value)=${voltage_zone_6};
-          id(press_button).press();
-    turn_off_action:
-      - lambda: |-
-          id(dac_value)=${voltage_zone_6};
-          id(press_button).press();
-    lambda: return id(zone_6).state;
-
-  - platform: template
-    id: zone_7_switch
-    name: "Zone 7"
-    icon: mdi:air-conditioner
-    turn_on_action:
-      - lambda: |-
-          id(dac_value)=${voltage_zone_7};
-          id(press_button).press();
-    turn_off_action:
-      - lambda: |-
-          id(dac_value)=${voltage_zone_7};
-          id(press_button).press();
-    lambda: return id(zone_7).state;
-
-  - platform: template
-    id: zone_8_switch
-    name: "Zone 8"
-    icon: mdi:air-conditioner
-    turn_on_action:
-      - lambda: |-
-          id(dac_value)=${voltage_zone_8};
-          id(press_button).press();
-    turn_off_action:
-      - lambda: |-
-          id(dac_value)=${voltage_zone_8};
-          id(press_button).press();
-    lambda: return id(zone_8).state;
-
-external_components:
-  - source: github://johnf/actron-air-esphome
-    components: [actron_air_esphome]
-    refresh: 0s
-
 actron_air_esphome:
   id: actron_air_esphome_1
   pin: ${gpio_keypad_pin}
@@ -312,7 +311,7 @@ text_sensor:
     bit_string:
       name: "Bit String"
       id: bit_string
-      internal: true
+      internal: false
 
   - platform: template
     name: "Fan Mode"
@@ -395,12 +394,3 @@ binary_sensor:
     zone_5:
       id: zone_5
       name: "Zone 5"
-    zone_6:
-      id: zone_6
-      name: "Zone 6"
-    zone_7:
-      id: zone_7
-      name: "Zone 7"
-    zone_8:
-      id: zone_8
-      name: "Zone 8"

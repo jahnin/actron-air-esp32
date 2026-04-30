@@ -16,31 +16,49 @@ namespace esphome {
 namespace actron_air_esphome {
 
 // Protocol timing constants (microseconds)
-constexpr unsigned long FRAME_BOUNDARY_US = 3500;
+//
+// Pulse classification:
+//   < 200us              : glitch, ignored
+//   200 - 1100us         : logic 1 (short pulse)
+//   1100 - 2700us        : logic 0 (long pulse)
+//   2700 - 3500us        : start condition
+//   > 3500us             : inter-frame gap
+//
+// Expected frame: 1 start pulse + 40 data pulses
+// Typical frame width: 20000us (all 1s) to 45000us (all 0s)
+// Gap between frames: ~90000us
+constexpr unsigned long FRAME_BOUNDARY_US  = 3500;
 constexpr unsigned long START_CONDITION_US = 2700;
-constexpr unsigned long PULSE_THRESHOLD_US = 1000;
-constexpr unsigned long FRAME_TIMEOUT_US = 40000;
+constexpr unsigned long PULSE_THRESHOLD_US = 1100;
+constexpr unsigned long FRAME_TIMEOUT_US   = 50000;
 
 // Protocol frame size (40 bits per frame)
 constexpr std::size_t NPULSE = 40;
 
+// Delta log ring buffer size.
+// 100 entries covers ~2 full frames (41 pulses each) plus inter-frame gaps,
+// giving enough context to see the full frame structure and any errors.
+constexpr uint8_t DELTA_LOG_SIZE = 50;
+
 // LED/segment bit indices in the protocol frame.
 // Status LEDs (modes, fan speeds, zones) and 7-segment display segments.
 // Digit segments follow standard naming: A-G where A is top, G is middle.
+// NOTE: These indices are under active verification - do not treat as final.
 enum class LedIndex : std::size_t {
   // Mode indicators
-  COOL = 0,
+  COOL      = 0,
   AUTO_MODE = 1,
-  RUN = 3,
-  HEAT = 15,
+  RUN       = 3,
+  HEAT      = 15,
 
   // Fan speed indicators
   FAN_CONT = 8,
   FAN_HIGH = 9,
-  FAN_MID = 10,
-  FAN_LOW = 11,
+  FAN_MID  = 10,
+  FAN_LOW  = 11,
 
-  // Zone indicators (1-7)
+  // Zone indicators (1-8)
+  // NOTE: Zone indices under verification - may not be correct
   ZONE_1 = 21,
   ZONE_2 = 14,
   ZONE_3 = 12,
@@ -51,10 +69,11 @@ enum class LedIndex : std::size_t {
   ZONE_8 = 4,
 
   // Other status indicators
-  TIMER = 7,
+  TIMER  = 7,
   INSIDE = 33,
 
   // 7-segment display - Digit 1 (leftmost)
+  // NOTE: Segment indices under verification - may not be correct
   DIGIT1_A = 39,
   DIGIT1_B = 35,
   DIGIT1_C = 34,
@@ -139,6 +158,7 @@ private:
   void process_frame();
   float get_display_value() const;
   static char decode_digit(uint8_t segment_bits);
+  void dump_delta_log();
 
   bool get_pulse(LedIndex idx) const {
     return (pulses_ >> static_cast<std::size_t>(idx)) & 1;
@@ -155,22 +175,52 @@ private:
       binary_sensors_{};
 
   // Protocol state (main loop only)
-  uint64_t pulses_{0};  // Snapshot for sensor publishing
+  uint64_t pulses_{0};
   bool has_new_data_{false};
 
-  // ISR-only state (not shared)
+  // ISR-only state (not shared with loop)
   volatile unsigned long last_intr_us_{0};
-  uint64_t local_pulse_bits_{0};  // Staging buffer - only ISR writes
+  uint64_t local_pulse_bits_{0};
+  uint8_t last_frame_pulse_count_{0};
+  volatile uint8_t  last_checkpoint_pulses_{0};
+  volatile uint64_t last_checkpoint_bits_{0};
+  volatile bool     has_checkpoint_{false};
 
-  // Loop-only state (not shared)
+  // ISR -> loop overflow signalling
+  volatile bool has_overflow_{false};
+  volatile unsigned long overflow_pulse_us_{0};
+
+  // Raw delta ring buffer - ISR writes, loop reads once full.
+  // Each entry stores the raw delta in us plus a classification tag:
+  //   'G' = glitch     (< 200us,      ignored)
+  //   '1' = logic 1    (< 1100us,     short pulse)
+  //   '0' = logic 0    (1100-2700us,  long pulse)
+  //   'S' = start      (2700-3500us,  frame start condition)
+  //   'F' = gap        (> 3500us,     inter-frame gap)
+  //   'X' = overflow   (too many pulses in frame)
+  volatile unsigned long delta_log_us_[DELTA_LOG_SIZE]{};
+  volatile char          delta_log_tag_[DELTA_LOG_SIZE]{};
+  volatile uint8_t       delta_log_idx_{0};
+  volatile bool          delta_log_full_{false};
+  bool                   delta_log_dumped_{false};  // Only dump once at boot
+
+  // Error rate tracking (loop only)
+  uint32_t last_logged_error_count_{0};
+
+  // ISR activity tracking (loop only)
+  uint32_t last_isr_report_ms_{0};
+  uint32_t last_isr_pulse_count_{0};
+
+  // Loop-only state
   unsigned long last_work_us_{0};
 
   // Atomic shared state (ISR writes, loop reads)
-  std::atomic<uint64_t> pulse_bits_{0};     // Bitmap: bit N = pulse N value
-  std::atomic<uint8_t> num_low_pulses_{0};
+  std::atomic<uint64_t> pulse_bits_{0};
+  std::atomic<uint8_t>  num_low_pulses_{0};
   std::atomic<uint32_t> error_count_{0};
-  std::atomic<bool> do_work_{false};
-  std::atomic<bool> has_data_error_{false};
+  std::atomic<uint32_t> total_pulses_{0};   // Total ISR firing count for activity monitoring
+  std::atomic<bool>     do_work_{false};
+  std::atomic<bool>     has_data_error_{false};
 };
 
 } // namespace actron_air_esphome
