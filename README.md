@@ -79,9 +79,11 @@ As current flows through both resistors, each one uses up some of the voltage ba
 ### The Formula to calculate the output voltage: 
 $$V_{out} = V_{in} \cdot \frac{R_2}{R_1 + R_2}$$
 
-$V_{in}$: The source voltage.
-$R_1$: The resistor connected to the input.
-$R_2$: The resistor connected to ground (where $V_{out}$ is measured).
+**$V_{in}$** - The source voltage.
+**$R_1$** - The resistor connected to the input.
+**$R_2$**: The resistor connected to ground (where $V_{out}$ is measured).
+
+
 
 # Hardware Requirements
 - ESP32 C3 SuperMini
