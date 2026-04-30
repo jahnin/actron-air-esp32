@@ -64,8 +64,16 @@ COM ──────┴─────────┴────────�
                                                                                                          │ Collector (C)
 KEY ─────────────────────────────────────────────────────────────────────────────────────────────────────┴
 ```
-
+# Built circuit 
+(I switched the resistors to the values in the circuit above)
  ![](https://github.com/jahnin/actron-air-esp32/blob/main/images/circuit.png)
+
+# Key concepts
+## Voltage divider
+A voltage divider is a simple linear circuit that turns a large voltage into a smaller one. By using two resistors in series, you can "tap into" the middle of the circuit to get a specific fraction of the input voltage. This is one of the most fundamental building blocks in electronics.
+
+The circuit consists of an input voltage **Vin** and two resistors **R1** and **R2** connected in series. 
+The output voltage ($V_{out}$) is measured across the second resistor ($R_2$).As current flows through both resistors, each one "uses up" some of the voltage based on its resistance value. The ratio of the two resistors determines exactly how much voltage is dropped at each stage.The FormulaTo calculate the output voltage, you use the following equation:$$V_{out} = V_{in} \cdot \frac{R_2}{R_1 + R_2}$$$V_{in}$: The source voltage.$R_1$: The resistor connected to the input.$R_2$: The resistor connected to ground (where $V_{out}$ is measured).
 
 # Hardware Requirements
 - ESP32 C3 SuperMini
