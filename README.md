@@ -89,7 +89,7 @@ The easiest way to calculate the voltage drop you want to achieve is to use a vo
 
 ### Gotcha
 In the circuit above, I'm dropping the 19v from the power line to 2.822v. The ESP32 C3 Supermini is able to decode the pulses accurately when the voltage is below 3v.
-The example from [johnf/actron-air-esphome](https://github.com/johnf/actron-air-esphome) drops the voltage to 3.3v, which is the max voltage that ESP32 C3 Supermini can work with. The bits were not accurate. I had a lot of 1's in the bitstream. 
+The project [johnf/actron-air-esphome](https://github.com/johnf/actron-air-esphome) drops the voltage to 3.3v, which is the max voltage that ESP32 C3 Supermini can work with. The bits were not accurate. I had a lot of 1's in the bitstream. 
 
 ## ESP32 Interrupt Service Routine (ISR)
 The Interrupt Service Routine (ISR) captures the timing of signal edges. Since most pulse-encoded protocols (like IR remotes, DHT sensors, or PWM signals) rely on the duration of "High" and "Low" states, the goal is to measure the time elapsed between state changes.
@@ -120,6 +120,16 @@ For a more accurate drop in voltage, the better option will be to use resistors 
 - IN1N5817 Diode
 - 50V 100MF capacitor
 
+# Getting Started
+- Use a multimeter and measure the DC voltage between the power line and ground. This was 19V for me.
+- Measure thd DC voltage between the Key line and ground. This was 5v for me.
+- Press and hold a button on the panel and simultaneously measure DC voltage between the Key line and ground. Make a note of the voltage.
+Repeat this for all buttons on the panel.
+- Build the circuit.
+- Setup esphome and initialize the esp32 device
+- Copy components/actron_air_esphome to home assistant under /config
+- Install the actron_air_keypad.yaml file to the esp32 device.
+- 
 
 
 **Need Help?**
