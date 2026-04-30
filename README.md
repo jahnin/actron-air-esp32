@@ -79,12 +79,11 @@ As current flows through both resistors, each one uses up some of the voltage ba
 ### The Formula to calculate the output voltage: 
 $$V_{out} = V_{in} \cdot \frac{R_2}{R_1 + R_2}$$
 
-Variable Definitions
-
-$V_{in}$: The source (input) voltage.
-$R_1$: The resistor connected between the input voltage and the output node.
-$R_2$: The resistor connected between the output node and ground.
-$V_{out}$: The reduced voltage measured across $R_2$.
+Variable Definitions:
+- $V_{in}$: The source (input) voltage.
+- $R_1$: The resistor connected between the input voltage and the output node.
+- $R_2$: The resistor connected between the output node and ground.
+- $V_{out}$: The reduced voltage measured across $R_2$.
 
 
 
