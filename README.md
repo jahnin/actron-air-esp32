@@ -85,7 +85,13 @@ Variable Definitions:
 - $R_2$: The resistor connected between the output node and ground.
 - $V_{out}$: The reduced voltage measured across $R_2$.
 
+The easiest way to calculate the voltage drop you want to achieve is to use a voltage divider calculator. See, [Calculator](https://ohmslawcalculator.com/voltage-divider-calculator)
 
+### Gotcha
+In the circuit above, I'm dropping the 19v from the power line to 2.822v. The ESP32 C3 Supermini is able to decode the pulses accurately when the voltage is below 3v.
+The example from [johnf/actron-air-esphome](https://github.com/johnf/actron-air-esphome) drops the voltage to 3.3v, which is the max voltage that ESP32 C3 Supermini can work with. The bits were not accurate. I had a lot of 1's in the bitstream. 
+
+## ESP32 ISR
 
 # Hardware Requirements
 - ESP32 C3 SuperMini
