@@ -104,6 +104,12 @@ From **components/actron_air_esphome/actron_air_keypad.h**
 - **START_CONDITION_US = 2700:** A pulse of this length signals the beginning of a data transmission.
 - **FRAME_BOUNDARY_US = 3500:** A pulse of this length (or longer) indicates the end of a message frame.
 
+## Controlling voltage on the key line using the DAC and NPN transistor. 
+We are using an NPN transistor to control voltage on the keyline using a Digital-to-Analog Converter(DAC), essentially turning the transistor into a voltage-controlled resistor.The ESP32 controls the voltage sent by the MCP4725 DAC to the base of the BC549 Transistor. The key line is 5V without any keys pressed.
+Based on the voltage sent by the DAC to the base of the transistor, the voltage will drop linearly on the key line connected to the collector. 
+
+For a more accurate drop in voltage, the better option will be to use resistors - See another version here. [Link](https://community.home-assistant.io/t/actron-aircon-esp32-controller-help/609062/213)
+
 # Hardware Requirements
 - ESP32 C3 SuperMini
 - Circuit Boards
