@@ -91,7 +91,18 @@ The easiest way to calculate the voltage drop you want to achieve is to use a vo
 In the circuit above, I'm dropping the 19v from the power line to 2.822v. The ESP32 C3 Supermini is able to decode the pulses accurately when the voltage is below 3v.
 The example from [johnf/actron-air-esphome](https://github.com/johnf/actron-air-esphome) drops the voltage to 3.3v, which is the max voltage that ESP32 C3 Supermini can work with. The bits were not accurate. I had a lot of 1's in the bitstream. 
 
-## ESP32 ISR
+## ESP32 Interrupt Service Routine (ISR)
+The Interrupt Service Routine (ISR) captures the timing of signal edges. Since most pulse-encoded protocols (like IR remotes, DHT sensors, or PWM signals) rely on the duration of "High" and "Low" states, the goal is to measure the time elapsed between state changes.
+
+When a pulse arrives at a GPIO pin, the ESP32 can trigger an ISR on a Rising, Falling, or Change edge. 
+A digital signal is binary: it is either High (2.82V in my example) or Low (0V/Ground). The "edges" are the exact moments the signal transitions from one state to the other.
+This project uses the falling edge(ie. transition from 2.82v to 0v). Inside that ISR, you record the current time using micros(). By subtracting the previous timestamp from the current one, you get the duration of the pulse(or width of the pulse). The width of the pulse denotes if the bit is a 0 or 1. 
+
+### Gotcha
+From components/actron_air_esphome/actron_air_keypad.h
+**PULSE_THRESHOLD_US = 1000:** This is the "divider." Any pulse shorter than this is a 0; any longer is a 1.
+**START_CONDITION_US = 2700:** A pulse of this length signals the beginning of a data transmission.
+**FRAME_BOUNDARY_US = 3500:** A pulse of this length (or longer) indicates the end of a message frame.
 
 # Hardware Requirements
 - ESP32 C3 SuperMini
