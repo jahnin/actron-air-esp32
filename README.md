@@ -2,7 +2,7 @@
 
 This project enables WiFi control for Actron Air conditioning systems by interfacing an ESP32 running ESPHome directly with the existing wall panel hardware through Home Assistant. 
 
-![](https://github.com/jahnin/actron-air-esp32/blob/main/images/actron-wall-controller.png)
+![](https://github.com/jahnin/actron-air-esp32/blob/main/images/actron-wall-card.png)
 
 This is based on:
 - https://community.home-assistant.io/t/actron-aircon-esp32-controller-help/609062
