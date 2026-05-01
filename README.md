@@ -12,34 +12,30 @@ This project is based on:
 ```
 ### Finding 1: With NPULSE=40, bits identical at 20 and 40
 
-```
 Checkpoint: 20 pulses, bits=804096012400
 Checkpoint: 40 pulses, bits=804096012400
-```
 
 Both halves identical → the mid-frame sync pulse was being treated as a **start condition**, resetting `local_pulse_bits_` to 0. The second half was all zeros, making it look like a repeat.
 
 ### Finding 2: With NPULSE=20, overflow errors
 
-```
 Checkpoint: 20 pulses, bits=483440
 ISR pulse overflow: >20 pulses in frame (overflow delta=1503 us)
 ISR pulse overflow: >20 pulses in frame (overflow delta=485 us)
-```
+
 
 Overflow deltas of ~490µs (logic 1) and ~1500µs (logic 0) confirm real data pulses arriving after bit 20 — the frame is genuinely more than 20 bits.
 
 ### Root Cause
 
 The protocol structure is:
-```
+
 [INTER-FRAME GAP >3500µs]
 [START pulse ~2700µs]
 [20 data bits]
 [MID-FRAME SYNC pulse ~2700µs]  ← was being treated as a new start, resetting buffer
 [20 data bits]
 [INTER-FRAME GAP ~230ms]
-```
 
 The ISR was treating the mid-frame sync as a start condition and resetting `local_pulse_bits_ = 0`, so the second 20 bits overwrote from position 0, making the full 40-bit frame appear to have identical first and second halves.
 
@@ -47,7 +43,6 @@ The ISR was treating the mid-frame sync as a start condition and resetting `loca
 
 Changed the start condition handling in `handle_interrupt`:
 
-```cpp
 if (delta_us > FRAME_BOUNDARY_US) {
   tag = 'F'; // Inter-frame gap - full reset
   arg->local_pulse_bits_ = 0;
@@ -60,11 +55,9 @@ if (delta_us > FRAME_BOUNDARY_US) {
 } else {
   // Normal data pulse handling...
 }
-```
 
 ### Result: Two Halves Now Differ Correctly
 
-```
 Checkpoint: 20 pulses, bits=483440
 Checkpoint: 40 pulses, bits=804091551856
 ```
