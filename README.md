@@ -4,7 +4,7 @@ This project enables WiFi control for Actron Air conditioning systems by interfa
 
 ![](https://github.com/jahnin/actron-air-esp32/blob/main/images/actron-wall-card.png)
 
-This is based on:
+This project is based on:
 - https://community.home-assistant.io/t/actron-aircon-esp32-controller-help/609062
 - https://github.com/johnf/actron-air-esphome
 
