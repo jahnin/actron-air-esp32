@@ -38,13 +38,13 @@ You measure this unique voltage for each button manually. The ESP32 circuit is t
 # Circuit
 ```
 POWER ────┬──────────────────────┐
-          │                    [4.7k]
+[19V]     │                    [4.7k]
        (Diode)                   │
        1N5817                    ├────────────────┐
           │                    [820R]             │
-          ├─────────┬──────┐     │                │
-          │         │      │     │                │
-        [=+]      ┌─┴─┐  [5V OUT]│          ┌─────┴─────────────┐         ┌─────────────────┐
+          ├─────────┬            │                │
+          │         │            │                │
+        [=+]      ┌─┴─┐ [5V OUT] │          ┌─────┴─────────────┐         ┌─────────────────┐
   25V   [CAP]     │DC-├──────────┼──────────┤ Pin 16 (5V)       ├─────────┤ Pin 5 (VCC)     │
 100 Mf   [-]      │DC │          │          │                   │         │                 │
           │       └─┬─┘          │          │     ESP32-C3      │         │   DAC MCP4725   │
@@ -65,6 +65,7 @@ COM ──────┴─────────┴────────�
                                                                                                      └───┬───┘
                                                                                                          │ Collector (C)
 KEY ─────────────────────────────────────────────────────────────────────────────────────────────────────┴
+[5V]
 ```
 # Built circuit 
 (I switched the resistors to the values in the circuit above)
@@ -124,21 +125,21 @@ For a more accurate drop in voltage, the better option will be to use resistors 
 
 # Getting Started
 - Use a multimeter and measure the DC voltage between the power line and ground. This was 19V for me.
-- Measure thd DC voltage between the Key line and ground. This was 5v for me.
-- Press and hold a button on the panel and simultaneously measure DC voltage between the Key line and ground. Make a note of the voltage.
-Repeat this for all buttons on the panel.
+- Measure the DC voltage between the Key line and ground. This was 5v for me.
+- Press and hold a button on the panel and simultaneously measure DC voltage between the Key line and ground. Make a note of the voltage. Repeat this for all buttons on the panel.
 - Build the circuit.
-- Setup esphome and initialize the esp32 device
-- Copy components/actron_air_esphome to home assistant under /config
-- Install the actron_air_keypad.yaml file to the esp32 device.
-- 
-
-
-**Need Help?**
-
-- Check ESPHome logs: `esphome logs your-device.yaml`
-- Validate config: `esphome config your-device.yaml`
-- Review example_actron_air_keypad.yaml for complete setup
+- Install the Actron Air ESPHome integration through HACS. See [johnf/actron-air-esphome/README.md](https://github.com/johnf/actron-air-esphome/blob/main/README.md)
+- Configure ESPHome and initialize your ESP32 device. See [johnf/actron-air-esphome/README.md](https://github.com/johnf/actron-air-esphome/blob/main/README.md)
+- Copy and replace /config/esphome/components with the components folder [jahnin/actron-air-esp32](https://github.com/jahnin/actron-air-esp32/tree/main/components/actron_air_esphome).
+- In ESPHome builder, update the yaml with actron_air_keypad.yaml from this project. [actron_air_keypad.yaml](https://github.com/jahnin/actron-air-esp32/blob/main/actron_air_keypad.yaml)
+- For the custom card in home assistant,
+    - Copy [actron-wall-card.js](https://github.com/jahnin/actron-air-esp32/blob/main/custom-card/actron-wall-card/actron-wall-card.js) to /config/www/actron-wall-card
+    - Goto Settings-> Dashboards -> 3 dots on the right hand upper corner -> Resources -> Add resource
+    - For URL type, "/local/actron-wall-card/actron-wall-card.js"
+    - For Resource type, Select "JavaScript module"
+    - Select Create.
+    - Use the config file as reference to add and edit the card:
+      
 
 ## License
 
