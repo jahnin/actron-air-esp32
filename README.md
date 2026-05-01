@@ -124,22 +124,30 @@ For a more accurate drop in voltage, the better option will be to use resistors 
 - 50V 100MF capacitor
 
 # Getting Started
-- Use a multimeter and measure the DC voltage between the power line and ground. This was 19V for me.
-- Measure the DC voltage between the Key line and ground. This was 5v for me.
-- Press and hold a button on the panel and simultaneously measure DC voltage between the Key line and ground. Make a note of the voltage. Repeat this for all buttons on the panel.
-- Build the circuit.
-- Install the Actron Air ESPHome integration through HACS. See [johnf/actron-air-esphome/README.md](https://github.com/johnf/actron-air-esphome/blob/main/README.md)
-- Configure ESPHome and initialize your ESP32 device. See [johnf/actron-air-esphome/README.md](https://github.com/johnf/actron-air-esphome/blob/main/README.md)
-- Copy and replace /config/esphome/components with the components folder [jahnin/actron-air-esp32](https://github.com/jahnin/actron-air-esp32/tree/main/components/actron_air_esphome).
-- In ESPHome builder, update the yaml with actron_air_keypad.yaml from this project. [actron_air_keypad.yaml](https://github.com/jahnin/actron-air-esp32/blob/main/actron_air_keypad.yaml)
-- For the custom card in home assistant,
+1. Use a multimeter and measure the DC voltage between the power line and ground. This was 19V for me.
+2. Measure the DC voltage between the Key line and ground. This was 5v for me.
+3. Press and hold a button on the panel and simultaneously measure DC voltage between the Key line and ground. Make a note of the voltage. Repeat this for all buttons on the panel.
+4. Build the circuit.
+5. Install the Actron Air ESPHome integration through HACS. See [johnf/actron-air-esphome/README.md](https://github.com/johnf/actron-air-esphome/blob/main/README.md)
+6. Configure ESPHome and initialize your ESP32 device. See [johnf/actron-air-esphome/README.md](https://github.com/johnf/actron-air-esphome/blob/main/README.md)
+7. Copy and replace /config/esphome/components with the components folder [jahnin/actron-air-esp32](https://github.com/jahnin/actron-air-esp32/tree/main/components/actron_air_esphome).
+8. In ESPHome builder, update the yaml with actron_air_keypad.yaml from this project. [actron_air_keypad.yaml](https://github.com/jahnin/actron-air-esp32/blob/main/actron_air_keypad.yaml)
+9. For the custom card in home assistant,
     - Copy [actron-wall-card.js](https://github.com/jahnin/actron-air-esp32/blob/main/custom-card/actron-wall-card/actron-wall-card.js) to /config/www/actron-wall-card
     - Goto Settings-> Dashboards -> 3 dots on the right hand upper corner -> Resources -> Add resource
     - For URL type, "/local/actron-wall-card/actron-wall-card.js"
     - For Resource type, Select "JavaScript module"
     - Select Create.
-    - Use the config file as reference to add and edit the card:
-      
+    - Use the config file as reference to add and edit the card: [config.md](https://github.com/jahnin/actron-air-esp32/blob/main/custom-card/actron-wall-card-config.md)
+10. Calculate DAC values that you need to substitute in the actron_air_keypad.yaml.
+
+### Calculate DAC values
+1. After connecting your circuit to the wires on the Wall panel
+2. Go to Settings-> Devices & Services -> Actron Device -> DAC Output miliVolts
+3. Manually type in a value and measure the voltage between the Key and Ground lines. Increase/Decrease the value until the voltage matches the voltage of a button press that you calculated in step 3.
+4. Make a note of the DAC Output miliVolts for every button press voltage that you calculated earlier.
+5. Substitue the DAC voltage in the actron_air_keypad.yaml.
+
 
 ## License
 
