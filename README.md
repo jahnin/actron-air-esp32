@@ -9,6 +9,9 @@ This project is based on:
 - https://github.com/johnf/actron-air-esphome
 
 ### Key differnces
+
+See [debug.md](https://github.com/jahnin/actron-air-esp32/blob/main/debug.md) for more information.
+
 ```
 ### Finding 1: With NPULSE=40, bits identical at 20 and 40
 
